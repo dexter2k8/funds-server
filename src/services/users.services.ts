@@ -1,6 +1,6 @@
 import database from "../data-source";
 import { AppError } from "../errors/appError";
-import { IUserRequest, IUserResponse } from "../interfaces";
+import { IUserPatchRequest, IUserRequest, IUserResponse } from "../interfaces";
 import { v4 as uuid } from "uuid";
 import { hashSync } from "bcryptjs";
 
@@ -29,5 +29,35 @@ export function getUsersService(
     if (err) return callback(new AppError(err.message, 400));
     const users = rows.map(({ password, ...rest }) => rest);
     callback(null, users);
+  });
+}
+
+export function retrieveUserService(
+  id: string,
+  callback: (err: Error | null, row?: IUserResponse) => void
+) {
+  const sql = "SELECT * FROM users WHERE id = ?";
+  const params = [id];
+  database.get(sql, params, (err, row: IUserResponse) => {
+    if (err) return callback(new AppError(err.message, 400));
+    delete row["password"];
+    callback(null, row);
+  });
+}
+
+export function updateUserService(
+  id: string,
+  user: IUserPatchRequest,
+  callback: (err: Error | null, row?: IUserPatchRequest) => void
+) {
+  const keys = Object.keys(user);
+  const values = Object.values(user);
+  const query = keys.map((el) => `${el} = ?`);
+  const sql = `UPDATE users SET ${query.join(",")} WHERE id = ? RETURNING *`;
+  const params = [...values, id];
+  database.get(sql, params, (err, row: IUserResponse) => {
+    if (err) return callback(new AppError(err.message, 400));
+    delete row["password"];
+    callback(null, row);
   });
 }

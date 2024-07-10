@@ -10,3 +10,9 @@ export interface IUserResponse {
   email: string;
   password?: string;
 }
+
+export interface IUserPatchRequest {
+  name?: string;
+  email?: string;
+  password?: string;
+}
