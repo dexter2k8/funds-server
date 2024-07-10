@@ -11,7 +11,7 @@ app.use("/users", userRoutes);
 app.use(errorHandler);
 
 app.get("/", (req, res) => {
-  res.json({ message: "Bem-vindo ao servidor Express!" });
+  res.json({ message: "Welcome to Funds Explorer Server!" });
 });
 
 const PORT = process.env.PORT || 3000;
