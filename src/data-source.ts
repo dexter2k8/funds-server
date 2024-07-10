@@ -1,8 +1,10 @@
 import sqlite3 from "sqlite3";
+import "dotenv/config";
 
-const DB_SOURCE = process.env.DATABASE_URL ?? ":memory:";
+const DB_SOURCE =
+  process.env.NODE_ENV === "test" ? ":memory:" : process.env.DATABASE_URL ?? "db.sqlite";
 
-const SQL_CREATE_TABLES = `
+export const SQL_CREATE_TABLES = `
     CREATE TABLE IF NOT EXISTS "users" (
 	"id"	varchar NOT NULL,
 	"name"	varchar(50) NOT NULL,
@@ -41,3 +43,5 @@ const database = new sqlite3.Database(DB_SOURCE, (err) => {
     }
   });
 });
+
+export default database;
