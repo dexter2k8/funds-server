@@ -18,3 +18,16 @@ export function createUserService(
     callback(null, row);
   });
 }
+
+export function getUsersService(
+  offset = 0,
+  limit = 10,
+  callback: (err: Error | null, rows?: IUserResponse[]) => void
+) {
+  const sql = `SELECT * FROM users ORDER BY name LIMIT ${limit} OFFSET ${offset}`;
+  database.all(sql, function (err, rows: IUserResponse[]) {
+    if (err) return callback(new AppError(err.message, 400));
+    const users = rows.map(({ password, ...rest }) => rest);
+    callback(null, users);
+  });
+}
