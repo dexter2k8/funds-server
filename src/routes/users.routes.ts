@@ -8,7 +8,7 @@ import {
 } from "../controllers/users.controllers";
 import { userExistsMiddleware, userNotFoundMiddleware } from "../middlewares/users.middlewares";
 import { dataValidateMiddleware } from "../middlewares/dataValidate.middleware";
-import { createUserSchema } from "../serializers/users.schemas";
+import { createUserSchema, updateUserSchema } from "../serializers/users.schemas";
 
 const userRoutes = Router();
 
@@ -20,7 +20,12 @@ userRoutes.post(
 );
 userRoutes.get("", getUsersController);
 userRoutes.get("/:id", userNotFoundMiddleware, retrieveUserController);
-userRoutes.patch("/:id", userNotFoundMiddleware, updateUserController);
+userRoutes.patch(
+  "/:id",
+  dataValidateMiddleware(updateUserSchema),
+  userNotFoundMiddleware,
+  updateUserController
+);
 userRoutes.delete("/:id", userNotFoundMiddleware, deleteUserController);
 
 export default userRoutes;
