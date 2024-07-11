@@ -3,6 +3,7 @@ import { AppError } from "../errors/appError";
 import { IUserPatchRequest, IUserRequest, IUserResponse } from "../interfaces";
 import { v4 as uuid } from "uuid";
 import { hashSync } from "bcryptjs";
+import { RunResult } from "sqlite3";
 
 export function createUserService(
   { name, email, password }: IUserRequest,
@@ -59,5 +60,17 @@ export function updateUserService(
     if (err) return callback(new AppError(err.message, 400));
     delete row["password"];
     callback(null, row);
+  });
+}
+
+export function deleteUserService(
+  id: string,
+  callback: (err: Error | null, row?: unknown) => void
+) {
+  const sql = "DELETE FROM users WHERE id = ?";
+  const params = [id];
+  database.run(sql, params, function (err) {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, { deleted: !!this.changes });
   });
 }

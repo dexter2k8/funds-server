@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   createUserService,
+  deleteUserService,
   getUsersService,
   retrieveUserService,
   updateUserService,
@@ -34,5 +35,12 @@ export const updateUserController = (req: Request, res: Response, next: NextFunc
   updateUserService(req.params.id, req.body, (err, row) => {
     if (err) return next(err);
     res.status(200).json(row);
+  });
+};
+
+export const deleteUserController = (req: Request, res: Response, next: NextFunction) => {
+  deleteUserService(req.params.id, (err, row) => {
+    if (err) return next(err);
+    res.status(204).json(row);
   });
 };

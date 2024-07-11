@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createUserController,
+  deleteUserController,
   getUsersController,
   retrieveUserController,
   updateUserController,
@@ -20,5 +21,6 @@ userRoutes.post(
 userRoutes.get("", getUsersController);
 userRoutes.get("/:id", userNotFoundMiddleware, retrieveUserController);
 userRoutes.patch("/:id", userNotFoundMiddleware, updateUserController);
+userRoutes.delete("/:id", userNotFoundMiddleware, deleteUserController);
 
 export default userRoutes;
