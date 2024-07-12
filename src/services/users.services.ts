@@ -20,6 +20,29 @@ export function createUserService(
   });
 }
 
+export function updateUserService(
+  id: string,
+  user: IUserPatchRequest,
+  callback: (err: Error | null, row?: IUserPatchRequest) => void
+) {
+  const isEmpty = Object.keys(user).length === 0;
+  if (isEmpty) return callback(new AppError("Missing fields", 400));
+
+  let userData = user;
+  if (user.password) userData = { ...user, password: hashSync(user.password, 10) };
+
+  const keys = Object.keys(userData);
+  const values = Object.values(userData);
+  const query = keys.map((el) => `${el} = ?`);
+  const sql = `UPDATE users SET ${query.join(",")} WHERE id = ? RETURNING *`;
+  const params = [...values, id];
+  database.get(sql, params, (err, row: IUserResponse) => {
+    if (err) return callback(new AppError(err.message, 400));
+    delete row["password"];
+    callback(null, row);
+  });
+}
+
 export function getUsersService(
   offset = 0,
   limit = 10,
@@ -39,23 +62,6 @@ export function retrieveUserService(
 ) {
   const sql = "SELECT * FROM users WHERE id = ?";
   const params = [id];
-  database.get(sql, params, (err, row: IUserResponse) => {
-    if (err) return callback(new AppError(err.message, 400));
-    delete row["password"];
-    callback(null, row);
-  });
-}
-
-export function updateUserService(
-  id: string,
-  user: IUserPatchRequest,
-  callback: (err: Error | null, row?: IUserPatchRequest) => void
-) {
-  const keys = Object.keys(user);
-  const values = Object.values(user);
-  const query = keys.map((el) => `${el} = ?`);
-  const sql = `UPDATE users SET ${query.join(",")} WHERE id = ? RETURNING *`;
-  const params = [...values, id];
   database.get(sql, params, (err, row: IUserResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     delete row["password"];
