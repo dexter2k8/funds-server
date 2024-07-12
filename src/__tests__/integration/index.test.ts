@@ -1,9 +1,11 @@
 import request from "supertest";
 import { beforeAll } from "@jest/globals";
 import { promisify } from "util";
-import * as users from "../routes/userRoutes.test";
+import * as usersRoutes from "../routes/userRoutes.test";
+import * as loginRoutes from "../routes/loginRoutes.test";
 
 export let user: request.Response;
+export let login: request.Response;
 
 import sqlite3 from "sqlite3";
 import database, { SQL_CREATE_TABLES } from "../../data-source";
@@ -19,7 +21,10 @@ export const userQueries = nodeExecutor.write(SQL_CREATE_TABLES);
 
 beforeAll(async () => {
   await userQueries;
+
   user = await request(app).post("/users").send(mockedUser);
+  login = await request(app).post("/login").send(mockedUser);
 });
 
-users;
+usersRoutes;
+loginRoutes;

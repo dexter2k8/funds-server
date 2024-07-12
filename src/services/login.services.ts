@@ -19,7 +19,7 @@ export async function loginService(
   const passwordMatch = await compare(password, user.password!);
   if (!passwordMatch) return callback(new AppError("Invalid user/password", 400));
 
-  const token = sign({ id: user.id }, process.env.SECRET_KEY!, { expiresIn: "1d" });
+  const token = sign({ id: user.id }, process.env.SECRET_KEY as string, { expiresIn: "1d" });
 
   callback(null, token);
 }
