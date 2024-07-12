@@ -21,3 +21,20 @@ export interface ILoginRequest {
   email: string;
   password: string;
 }
+
+export interface IFundRequest {
+  alias: string;
+  name: string;
+  description?: string;
+  type: string;
+  sector?: string;
+}
+
+export interface IFundResponse {
+  id: string;
+  alias: string;
+  name: string;
+  description?: string;
+  type: string;
+  sector?: string;
+}
