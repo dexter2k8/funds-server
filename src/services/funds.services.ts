@@ -7,7 +7,7 @@ export function createFundService(
   fund: IFundRequest,
   callback: (err: Error | null, row?: unknown) => void
 ) {
-  const keys = [" id", ...Object.keys(fund)];
+  const keys = ["id", ...Object.keys(fund)];
   const values = Object.values(fund);
   const mark = Array(keys.length).fill("?");
   const id = uuid();
