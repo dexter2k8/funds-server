@@ -7,7 +7,6 @@ import app from "../../app";
 describe("/funds - FUNDS ROUTE TEST", () => {
   test("POST /funds -  Must be able to create a fund", async () => {
     expect(fund.status).toBe(201);
-    expect(fund.body).toHaveProperty("id");
     expect(fund.body).toHaveProperty("alias");
     expect(fund.body).toHaveProperty("name");
     expect(fund.body).toHaveProperty("description");
@@ -32,69 +31,92 @@ describe("/funds - FUNDS ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /funds/:id -  should not be able to retrieve fund without authentication", async () => {
-    const fundTobeRetrievedId = fund.body.id;
-    const response = await request(app).get(`/funds/${fundTobeRetrievedId}`);
+  test("GET /funds/:alias -  should not be able to retrieve fund without authentication", async () => {
+    const fundTobeRetrievedAlias = fund.body.alias;
+    const response = await request(app).get(`/funds/${fundTobeRetrievedAlias}`);
     expect(response.body).toHaveProperty("message");
     expect(response.status).toBe(401);
   });
 
-  test("GET /funds/:id -  should not be able to retrieve fund with invalid id", async () => {
+  test("GET /funds/:alias -  should not be able to retrieve fund with invalid id", async () => {
     const response = await request(app)
-      .get(`/funds/13970660-5dbe-423a-9a9d-5c23b37943cf`)
+      .get(`/funds/XXXX11`)
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
     expect(response.body).toHaveProperty("message");
     expect(response.status).toBe(404);
   });
 
-  test("GET /funds/:id -  should  be able to retrieve fund", async () => {
-    const fundTobeRetrievedId = fund.body.id;
+  test("GET /funds/:alias -  should  be able to retrieve fund", async () => {
+    const fundTobeRetrievedAlias = fund.body.alias;
     const response = await request(app)
-      .get(`/funds/${fundTobeRetrievedId}`)
+      .get(`/funds/${fundTobeRetrievedAlias}`)
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
     expect(response.body).toHaveProperty("alias");
     expect(response.status).toBe(200);
   });
 
-  test("PATCH /funds/:id -  should not be able to update fund without authentication", async () => {
-    const response = await request(app).patch(`/funds/${fund.body.id}`);
+  test("PATCH /funds/:alias -  should not be able to update fund without authentication", async () => {
+    const response = await request(app).patch(`/funds/${fund.body.alias}`);
     expect(response.body).toHaveProperty("message");
     expect(response.status).toBe(401);
   });
 
-  test("PATCH /funds/:id - should not be able to update fund with invalid id", async () => {
+  test("PATCH /funds/:alias - should not be able to update fund with invalid id", async () => {
     const newValues = { alias: "HGLG13" };
     const token = `Bearer ${adminLogin.body.token}`;
     const response = await request(app)
-      .patch(`/funds/13970660-5dbe-423a-9a9d-5c23b37943cf`)
+      .patch(`/funds/XXXX11`)
       .set("Authorization", token)
       .send(newValues);
     expect(response.body).toHaveProperty("message");
     expect(response.status).toBe(404);
   });
 
-  test("PATCH /funds/:id - should not be able to update fund if not admin", async () => {
+  test("PATCH /funds/:alias - should not be able to update fund if not admin", async () => {
     const newValues = { alias: "HGLG13" };
     const token = `Bearer ${userLogin.body.token}`;
-    const fundTobeUpdateId = fund.body.id;
+    const fundTobeUpdateAlias = fund.body.alias;
     const response = await request(app)
-      .patch(`/funds/${fundTobeUpdateId}`)
+      .patch(`/funds/${fundTobeUpdateAlias}`)
       .set("Authorization", token)
       .send(newValues);
     expect(response.status).toBe(403);
     expect(response.body).toHaveProperty("message");
   });
 
-  test("PATCH /funds/:id -  should be able to update fund", async () => {
-    const newValues = { alias: "HGLG13" };
+  test("PATCH /funds/:alias -  should be able to update fund", async () => {
+    const newValues = { name: "Test Fund Update" };
     const token = `Bearer ${adminLogin.body.token}`;
-    const fundTobeUpdateId = fund.body.id;
+    const fundTobeUpdateAlias = fund.body.alias;
     const response = await request(app)
-      .patch(`/funds/${fundTobeUpdateId}`)
+      .patch(`/funds/${fundTobeUpdateAlias}`)
       .set("Authorization", token)
       .send(newValues);
     expect(response.status).toBe(200);
-    expect(response.body.alias).toEqual("HGLG13");
+    expect(response.body.name).toEqual("Test Fund Update");
+  });
+
+  test("DELETE /funds/:alias - should not be able to delete fund if not admin", async () => {
+    const response = await request(app)
+      .delete(`/users/${fund.body.alias}`)
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(403);
+  });
+
+  test("DELETE /funds/:alias -  should not be able to delete fund with invalid id", async () => {
+    const response = await request(app)
+      .delete(`/funds/XXXX11`)
+      .set("Authorization", `Bearer ${adminLogin.body.token}`);
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  test("DELETE /funds/:alias -  Must be able to delete fund", async () => {
+    const response = await request(app)
+      .delete(`/funds/${fund.body.alias}`)
+      .set("Authorization", `Bearer ${adminLogin.body.token}`);
+    expect(response.status).toBe(204);
   });
 });
 

@@ -133,6 +133,14 @@ describe("/users - USERS ROUTE TESTS", () => {
     expect(response.body).not.toHaveProperty("password");
   });
 
+  test("DELETE /users/:id -  should not be able to remove user not being admin or owner", async () => {
+    const response = await request(app)
+      .delete(`/users/${user.body.id}`)
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(403);
+  });
+
   test("DELETE /users/:id -  should not be able to delete user with invalid id", async () => {
     await request(app).post("/users").send(mockedUser);
     const response = await request(app)
@@ -145,9 +153,6 @@ describe("/users - USERS ROUTE TESTS", () => {
   test("DELETE /users/:id -  Must be able to delete user", async () => {
     const response = await request(app)
       .delete(`/users/${user.body.id}`)
-      .set("Authorization", `Bearer ${adminLogin.body.token}`);
-    const findUser = await request(app)
-      .get("/users")
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
     expect(response.status).toBe(204);
   });

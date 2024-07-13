@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createFundController,
+  deleteFundController,
   getFundsController,
   retrieveFundController,
   updateFundController,
@@ -21,14 +22,21 @@ fundRoutes.post(
   createFundController
 );
 fundRoutes.get("", authUserMiddleware, getFundsController);
-fundRoutes.get("/:id", authUserMiddleware, fundNotFoundMiddleware, retrieveFundController);
+fundRoutes.get("/:alias", authUserMiddleware, fundNotFoundMiddleware, retrieveFundController);
 fundRoutes.patch(
-  "/:id",
+  "/:alias",
   authUserMiddleware,
   isAdminMiddleware,
   dataValidateMiddleware(updateFundSchema),
   fundNotFoundMiddleware,
   updateFundController
+);
+fundRoutes.delete(
+  "/:alias",
+  authUserMiddleware,
+  isAdminMiddleware,
+  fundNotFoundMiddleware,
+  deleteFundController
 );
 
 export default fundRoutes;

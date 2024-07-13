@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   createFundService,
+  deleteFundService,
   getFundsService,
   retrieveFundService,
   updateFundService,
@@ -23,15 +24,22 @@ export const getFundsController = (req: Request, res: Response) => {
 };
 
 export const retrieveFundController = (req: Request, res: Response, next: NextFunction) => {
-  retrieveFundService(req.params.id, (err, row) => {
+  retrieveFundService(req.params.alias, (err, row) => {
     if (err) return next(err);
     res.status(200).json(row);
   });
 };
 
 export const updateFundController = (req: Request, res: Response, next: NextFunction) => {
-  updateFundService(req.params.id, req.body, (err, row) => {
+  updateFundService(req.params.alias, req.body, (err, row) => {
     if (err) return next(err);
     res.status(200).json(row);
+  });
+};
+
+export const deleteFundController = (req: Request, res: Response, next: NextFunction) => {
+  deleteFundService(req.params.alias, (err, row) => {
+    if (err) return next(err);
+    res.status(204).json(row);
   });
 };

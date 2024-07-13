@@ -38,10 +38,6 @@ export interface IFundRequest {
   sector?: string;
 }
 
-export interface IFundResponse extends IFundRequest {
-  id: string;
-}
-
 export interface IFundPatchRequest {
   alias?: string;
   name?: string;

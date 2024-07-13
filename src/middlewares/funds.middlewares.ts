@@ -12,8 +12,8 @@ export function fundExistsMiddleware(req: Request, res: Response, next: NextFunc
 }
 
 export function fundNotFoundMiddleware(req: Request, res: Response, next: NextFunction) {
-  const sql = "SELECT COUNT (*) AS count FROM funds WHERE id = ?";
-  const params = req.params.id;
+  const sql = "SELECT COUNT (*) AS count FROM funds WHERE alias = ?";
+  const params = req.params.alias;
   database.get(sql, params, (err, row: { count: number }) => {
     if (err) return res.status(400).json(err);
     else if (!row.count) res.status(404).json({ message: "Fund not found" });

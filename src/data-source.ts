@@ -14,13 +14,12 @@ export const SQL_CREATE_TABLES = `
 	PRIMARY KEY("id")
 );
     CREATE TABLE IF NOT EXISTS "funds" (
-	"id"	VARCHAR NOT NULL,
 	"alias"	VARCHAR(10) NOT NULL UNIQUE,
 	"name"	VARCHAR(50) NOT NULL,
 	"description"	VARCHAR(200),
 	"type"	VARCHAR(10) NOT NULL,
 	"sector"	VARCHAR(50),
-	PRIMARY KEY("id")
+	PRIMARY KEY("alias")
 );
     CREATE TABLE IF NOT EXISTS "transactions" (
 	"id"	VARCHAR NOT NULL,
@@ -28,9 +27,9 @@ export const SQL_CREATE_TABLES = `
 	"bought_at"	DATE NOT NULL DEFAULT (CURRENT_TIMESTAMP),
 	"quantity"	DECIMAL(10, 0) NOT NULL,
 	"userId"	VARCHAR,
-	"fundId"	VARCHAR,
+	"fundAlias"	VARCHAR,
 	PRIMARY KEY("id"),
-	FOREIGN KEY("fundId") REFERENCES "funds"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY("fundAlias") REFERENCES "funds"("alias") ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 `;
