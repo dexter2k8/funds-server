@@ -8,6 +8,8 @@ export const dataValidateMiddleware =
         stripUnknown: true,
         abortEarly: false,
       });
+      req.body = validateData;
+
       return next();
     } catch (error: any) {
       return res.status(400).json({ message: error.errors });

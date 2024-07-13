@@ -2,6 +2,7 @@ export interface IUserRequest {
   name: string;
   email: string;
   password: string;
+  admin: boolean;
 }
 
 export interface IUserResponse {
@@ -9,9 +10,16 @@ export interface IUserResponse {
   name: string;
   email: string;
   password?: string;
+  admin?: boolean;
 }
 
 export interface IUserPatchRequest {
+  name?: string;
+  email?: string;
+  password?: string;
+  admin?: boolean;
+}
+export interface ISelfUserPatchRequest {
   name?: string;
   email?: string;
   password?: string;

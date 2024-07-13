@@ -5,13 +5,14 @@ import { v4 as uuid } from "uuid";
 import { hashSync } from "bcryptjs";
 
 export function createUserService(
-  { name, email, password }: IUserRequest,
+  { name, email, password, admin }: IUserRequest,
   callback: (err: Error | null, row?: unknown) => void
 ) {
   const id = uuid();
   const pass = hashSync(password, 10);
-  const sql = "INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?) RETURNING *";
-  const params = [id, name, email, pass];
+  const sql =
+    "INSERT INTO users (id, name, email, password, admin) VALUES (?, ?, ?, ?, ?) RETURNING *";
+  const params = [id, name, email, pass, admin];
   database.get(sql, params, (err, row: IUserResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     delete row["password"];
@@ -53,6 +54,8 @@ export function updateUserService(
   const isEmpty = Object.keys(user).length === 0;
   if (isEmpty) return callback(new AppError("Missing fields", 400));
 
+  if (!id) return callback(new AppError("Missing id", 400));
+
   let userData = user;
   if (user.password) userData = { ...user, password: hashSync(user.password, 10) };
 
@@ -63,7 +66,7 @@ export function updateUserService(
   const params = [...values, id];
   database.get(sql, params, (err, row: IUserResponse) => {
     if (err) return callback(new AppError(err.message, 400));
-    delete row["password"];
+    if (row) delete row["password"];
     callback(null, row);
   });
 }

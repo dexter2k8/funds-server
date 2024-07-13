@@ -5,7 +5,7 @@ import "dotenv/config";
 declare global {
   namespace Express {
     interface Request {
-      user?: {
+      userId?: {
         id: string;
       };
     }
@@ -20,7 +20,7 @@ export function authUserMiddleware(req: Request, res: Response, next: NextFuncti
 
   return verify(token, process.env.SECRET_KEY as string, (err, decoded: any) => {
     if (err) return res.status(401).json({ message: err.message });
-    req.user = { id: decoded.id };
+    req.userId = { id: decoded.id };
     return next();
   });
 }

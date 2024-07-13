@@ -6,28 +6,32 @@ const DB_SOURCE =
 
 export const SQL_CREATE_TABLES = `
     CREATE TABLE IF NOT EXISTS "users" (
-	"id"	varchar NOT NULL,
-	"name"	varchar(50) NOT NULL,
-	"email"	varchar(50) NOT NULL UNIQUE,
-	"password"	varchar(120) NOT NULL,
+	"id"	VARCHAR NOT NULL,
+	"name"	VARCHAR(50) NOT NULL,
+	"email"	VARCHAR(50) NOT NULL UNIQUE,
+	"password"	VARCHAR(120) NOT NULL,
+	"admin"	BOOLEAN NOT NULL DEFAULT (0),
 	PRIMARY KEY("id")
 );
     CREATE TABLE IF NOT EXISTS "funds" (
-	"id"	varchar NOT NULL,
-	"alias"	varchar(10) NOT NULL UNIQUE,
-	"name"	varchar(50) NOT NULL,
-	"description"	varchar(300),
-	"type"	varchar(50) NOT NULL,
-	"sector"	varchar(50),
+	"id"	VARCHAR NOT NULL,
+	"alias"	VARCHAR(10) NOT NULL UNIQUE,
+	"name"	VARCHAR(50) NOT NULL,
+	"description"	VARCHAR(300),
+	"type"	VARCHAR(50) NOT NULL,
+	"sector"	VARCHAR(50),
 	PRIMARY KEY("id")
 );
     CREATE TABLE IF NOT EXISTS "transactions" (
-	"id"	varchar NOT NULL,
-	"price"	decimal(10, 2) NOT NULL,
-	"bought_at"	date NOT NULL,
-	"userId"	varchar,
-	"fundId"	varchar,
-	PRIMARY KEY("id")
+	"id"	VARCHAR NOT NULL,
+	"price"	DECIMAL(10, 2) NOT NULL,
+	"bought_at"	DATE NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+	"quantity"	DECIMAL(10, 0) NOT NULL,
+	"userId"	VARCHAR,
+	"fundId"	VARCHAR,
+	PRIMARY KEY("id"),
+	FOREIGN KEY("fundId") REFERENCES "funds"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 `;
 

@@ -38,6 +38,13 @@ export const updateUserController = (req: Request, res: Response, next: NextFunc
   });
 };
 
+export const updateSelfUserController = (req: Request, res: Response, next: NextFunction) => {
+  updateUserService(req.userId!.id, req.body, (err, row) => {
+    if (err) return next(err);
+    res.status(200).json(row);
+  });
+};
+
 export const deleteUserController = (req: Request, res: Response, next: NextFunction) => {
   deleteUserService(req.params.id, (err, row) => {
     if (err) return next(err);
