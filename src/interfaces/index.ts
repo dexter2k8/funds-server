@@ -45,3 +45,24 @@ export interface IFundPatchRequest {
   type?: string;
   sector?: string;
 }
+
+export interface ITransactionRequest {
+  value: number;
+  date: Date;
+  quantity: number;
+  income?: number;
+  fundAlias: string;
+}
+
+export interface ITransactionPatchRequest {
+  value?: number;
+  date?: Date;
+  quantity?: number;
+  income?: number;
+  fundAlias?: string;
+}
+
+export interface ITransactionResponse extends ITransactionRequest {
+  id: string;
+  userId: string;
+}

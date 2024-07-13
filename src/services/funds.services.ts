@@ -7,11 +7,10 @@ export function createFundService(
   fund: IFundRequest,
   callback: (err: Error | null, row?: unknown) => void
 ) {
-  const keys = [...Object.keys(fund)];
-  const values = Object.values(fund);
+  const keys = Object.keys(fund);
+  const params = Object.values(fund);
   const mark = Array(keys.length).fill("?");
   const sql = `INSERT INTO funds (${keys.join(", ")}) VALUES (${mark.join(", ")}) RETURNING *`;
-  const params = [...values];
   database.get(sql, params, (err, row: IFundRequest) => {
     if (err) return callback(new AppError(err.message, 400));
     callback(null, row);

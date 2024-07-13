@@ -16,8 +16,8 @@ const fundRoutes = Router();
 
 fundRoutes.post(
   "",
-  dataValidateMiddleware(createFundSchema),
   authUserMiddleware,
+  dataValidateMiddleware(createFundSchema),
   fundExistsMiddleware,
   createFundController
 );

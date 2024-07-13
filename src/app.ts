@@ -3,6 +3,7 @@ import errorHandler from "./errors/errorHandler";
 import userRoutes from "./routes/users.routes";
 import loginRoutes from "./routes/login.routes";
 import fundRoutes from "./routes/funds.routes";
+import transactionsRoutes from "./routes/transactions.routes";
 import "dotenv/config";
 
 const app = express();
@@ -11,6 +12,7 @@ app.use(express.json());
 app.use("/login", loginRoutes);
 app.use("/users", userRoutes);
 app.use("/funds", fundRoutes);
+app.use("/transactions", transactionsRoutes);
 
 app.use(errorHandler);
 

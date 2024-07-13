@@ -1,4 +1,4 @@
-import { boolean, object, Schema, string } from "yup";
+import { object, Schema, string } from "yup";
 import { IFundPatchRequest, IFundRequest } from "../interfaces";
 
 export const createFundSchema: Schema<IFundRequest> = object().shape({
