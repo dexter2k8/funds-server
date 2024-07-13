@@ -43,6 +43,33 @@ describe("/users - USERS ROUTE TESTS", () => {
     expect(response.status).toBe(403);
   });
 
+  test("GET /users/:id -  should not be able to retrieve user not being admin", async () => {
+    const userTobeRetrievedId = admin.body.id;
+    const response = await request(app)
+      .get(`/users/${userTobeRetrievedId}`)
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(403);
+  });
+
+  test("GET /users/:id -  should not be able to retrieve user with invalid id", async () => {
+    const response = await request(app)
+      .get(`/users/13970660-5dbe-423a-9a9d-5c23b37943cf`)
+      .set("Authorization", `Bearer ${adminLogin.body.token}`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(404);
+  });
+
+  test("GET /users/:id -  should  be able to retrieve user", async () => {
+    const userTobeRetrievedId = user.body.id;
+    const response = await request(app)
+      .get(`/users/${userTobeRetrievedId}`)
+      .set("Authorization", `Bearer ${adminLogin.body.token}`);
+    expect(response.body).toHaveProperty("name");
+    expect(response.body).not.toHaveProperty("password");
+    expect(response.status).toBe(200);
+  });
+
   test("PATCH /users/:id -  should not be able to update user without authentication", async () => {
     const response = await request(app).patch(`/users/${user.body.id}`);
     expect(response.body).toHaveProperty("message");

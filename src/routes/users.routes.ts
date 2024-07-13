@@ -3,6 +3,7 @@ import {
   createUserController,
   deleteUserController,
   getUsersController,
+  retrieveSelfUserController,
   retrieveUserController,
   updateSelfUserController,
   updateUserController,
@@ -29,6 +30,7 @@ userRoutes.post(
   createUserController
 );
 userRoutes.get("", authUserMiddleware, isAdminMiddleware, getUsersController);
+userRoutes.get("/self-user", authUserMiddleware, retrieveSelfUserController);
 userRoutes.get(
   "/:id",
   authUserMiddleware,

@@ -9,10 +9,11 @@ export let user: request.Response;
 export let admin: request.Response;
 export let userLogin: request.Response;
 export let adminLogin: request.Response;
+export let fund: request.Response;
 
 import sqlite3 from "sqlite3";
 import database, { SQL_CREATE_TABLES } from "../../data-source";
-import { mockedAdmin, mockedUser } from "../mocks";
+import { mockedAdmin, mockedFund, mockedUser } from "../mocks";
 import app from "../../app";
 
 const createNodeSqlite2Executor = (db: sqlite3.Database) => {
@@ -29,6 +30,10 @@ beforeAll(async () => {
   admin = await request(app).post("/users").send(mockedAdmin);
   userLogin = await request(app).post("/login").send(mockedUser);
   adminLogin = await request(app).post("/login").send(mockedAdmin);
+  fund = await request(app)
+    .post("/funds")
+    .set("Authorization", `Bearer ${adminLogin.body.token}`)
+    .send(mockedFund);
 });
 
 usersRoutes;

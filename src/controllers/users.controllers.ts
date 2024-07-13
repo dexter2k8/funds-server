@@ -31,6 +31,13 @@ export const retrieveUserController = (req: Request, res: Response, next: NextFu
   });
 };
 
+export const retrieveSelfUserController = (req: Request, res: Response, next: NextFunction) => {
+  retrieveUserService(req.userId!.id, (err, row) => {
+    if (err) return next(err);
+    res.status(200).json(row);
+  });
+};
+
 export const updateUserController = (req: Request, res: Response, next: NextFunction) => {
   updateUserService(req.params.id, req.body, (err, row) => {
     if (err) return next(err);

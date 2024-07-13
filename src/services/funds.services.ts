@@ -30,3 +30,15 @@ export function getFundsService(
     callback(null, rows);
   });
 }
+
+export function retrieveFundService(
+  id: string,
+  callback: (err: Error | null, row?: IFundResponse) => void
+) {
+  const sql = "SELECT * FROM funds WHERE id = ?";
+  const params = [id];
+  database.get(sql, params, (err, row: IFundResponse) => {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, row);
+  });
+}

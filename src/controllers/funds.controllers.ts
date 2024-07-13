@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { createFundService, getFundsService } from "../services/funds.services";
+import {
+  createFundService,
+  getFundsService,
+  retrieveFundService,
+} from "../services/funds.services";
 
 export const createFundController = (req: Request, res: Response, next: NextFunction) => {
   createFundService(req.body, (err, rows) => {
@@ -14,5 +18,12 @@ export const getFundsController = (req: Request, res: Response) => {
   getFundsService(offset, limit, (err, rows) => {
     if (err) return res.status(400).json(err);
     res.status(200).json(rows);
+  });
+};
+
+export const retrieveFundController = (req: Request, res: Response, next: NextFunction) => {
+  retrieveFundService(req.params.id, (err, row) => {
+    if (err) return next(err);
+    res.status(200).json(row);
   });
 };
