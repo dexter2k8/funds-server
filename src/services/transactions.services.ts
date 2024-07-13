@@ -21,3 +21,16 @@ export function createTransactionService(
     callback(null, row);
   });
 }
+
+export function getSelfTransactionsService(
+  userId: string,
+  offset = 0,
+  limit = 10,
+  callback: (err: Error | null, rows?: ITransactionResponse[]) => void
+) {
+  const sql = `SELECT * FROM transactions WHERE userId = '${userId}' ORDER BY date LIMIT ${limit} OFFSET ${offset}`;
+  database.all(sql, function (err, rows: ITransactionResponse[]) {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, rows);
+  });
+}

@@ -29,6 +29,14 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     expect(response.body).toHaveProperty("message");
     expect(response.status).toBe(404);
   });
+
+  test("GET /transactions -  Must be able to list all transactions for logged user", async () => {
+    const response = await request(app)
+      .get("/transactions")
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+    expect(response.body).toHaveLength(1);
+    expect(response.status).toBe(200);
+  });
 });
 
 export default describe;

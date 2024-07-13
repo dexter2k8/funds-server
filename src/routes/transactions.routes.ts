@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { createTransactionController } from "../controllers/transactions.controllers";
+import {
+  createTransactionController,
+  getSelfTransactionsController,
+} from "../controllers/transactions.controllers";
 import { dataValidateMiddleware } from "../middlewares/dataValidate.middleware";
 import { createTransactionSchema } from "../serializers/transactions.schemas";
 import { transactionFundExistsMiddleware } from "../middlewares/transactions.middlewares";
@@ -14,5 +17,6 @@ transactionsRoutes.post(
   transactionFundExistsMiddleware,
   createTransactionController
 );
+transactionsRoutes.get("", authUserMiddleware, getSelfTransactionsController);
 
 export default transactionsRoutes;
