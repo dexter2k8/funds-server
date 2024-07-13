@@ -39,18 +39,18 @@ userRoutes.get(
   retrieveUserController
 );
 userRoutes.patch(
+  "",
+  authUserMiddleware,
+  dataValidateMiddleware(updateSelfUserSchema),
+  updateSelfUserController
+);
+userRoutes.patch(
   "/:id",
   authUserMiddleware,
   isAdminMiddleware,
   dataValidateMiddleware(updateUserSchema),
   userNotFoundMiddleware,
   updateUserController
-);
-userRoutes.patch(
-  "",
-  authUserMiddleware,
-  dataValidateMiddleware(updateSelfUserSchema),
-  updateSelfUserController
 );
 userRoutes.delete(
   "/:id",

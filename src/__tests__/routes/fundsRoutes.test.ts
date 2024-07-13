@@ -1,7 +1,7 @@
 import { describe, test, expect } from "@jest/globals";
 import request from "supertest";
 import { mockedFund } from "../mocks";
-import { adminLogin, fund } from "../integration/index.test";
+import { adminLogin, fund, userLogin } from "../integration/index.test";
 import app from "../../app";
 
 describe("/funds - FUNDS ROUTE TEST", () => {
@@ -54,6 +54,47 @@ describe("/funds - FUNDS ROUTE TEST", () => {
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
     expect(response.body).toHaveProperty("alias");
     expect(response.status).toBe(200);
+  });
+
+  test("PATCH /funds/:id -  should not be able to update fund without authentication", async () => {
+    const response = await request(app).patch(`/funds/${fund.body.id}`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(401);
+  });
+
+  test("PATCH /funds/:id - should not be able to update fund with invalid id", async () => {
+    const newValues = { alias: "HGLG13" };
+    const token = `Bearer ${adminLogin.body.token}`;
+    const response = await request(app)
+      .patch(`/funds/13970660-5dbe-423a-9a9d-5c23b37943cf`)
+      .set("Authorization", token)
+      .send(newValues);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(404);
+  });
+
+  test("PATCH /funds/:id - should not be able to update fund if not admin", async () => {
+    const newValues = { alias: "HGLG13" };
+    const token = `Bearer ${userLogin.body.token}`;
+    const fundTobeUpdateId = fund.body.id;
+    const response = await request(app)
+      .patch(`/funds/${fundTobeUpdateId}`)
+      .set("Authorization", token)
+      .send(newValues);
+    expect(response.status).toBe(403);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  test("PATCH /funds/:id -  should be able to update fund", async () => {
+    const newValues = { alias: "HGLG13" };
+    const token = `Bearer ${adminLogin.body.token}`;
+    const fundTobeUpdateId = fund.body.id;
+    const response = await request(app)
+      .patch(`/funds/${fundTobeUpdateId}`)
+      .set("Authorization", token)
+      .send(newValues);
+    expect(response.status).toBe(200);
+    expect(response.body.alias).toEqual("HGLG13");
   });
 });
 

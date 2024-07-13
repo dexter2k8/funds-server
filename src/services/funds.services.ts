@@ -1,6 +1,6 @@
 import database from "../data-source";
 import { AppError } from "../errors/appError";
-import { IFundRequest, IFundResponse } from "../interfaces";
+import { IFundPatchRequest, IFundRequest, IFundResponse } from "../interfaces";
 import { v4 as uuid } from "uuid";
 
 export function createFundService(
@@ -37,6 +37,27 @@ export function retrieveFundService(
 ) {
   const sql = "SELECT * FROM funds WHERE id = ?";
   const params = [id];
+  database.get(sql, params, (err, row: IFundResponse) => {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, row);
+  });
+}
+
+export function updateFundService(
+  id: string,
+  user: IFundPatchRequest,
+  callback: (err: Error | null, row?: IFundPatchRequest) => void
+) {
+  const isEmpty = Object.keys(user).length === 0;
+  if (isEmpty) return callback(new AppError("Missing fields", 400));
+
+  if (!id) return callback(new AppError("Missing id", 400));
+
+  const keys = Object.keys(user);
+  const values = Object.values(user);
+  const query = keys.map((el) => `${el} = ?`);
+  const sql = `UPDATE funds SET ${query.join(",")} WHERE id = ? RETURNING *`;
+  const params = [...values, id];
   database.get(sql, params, (err, row: IFundResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     callback(null, row);

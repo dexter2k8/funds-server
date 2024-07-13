@@ -38,11 +38,14 @@ export interface IFundRequest {
   sector?: string;
 }
 
-export interface IFundResponse {
+export interface IFundResponse extends IFundRequest {
   id: string;
-  alias: string;
-  name: string;
+}
+
+export interface IFundPatchRequest {
+  alias?: string;
+  name?: string;
   description?: string;
-  type: string;
+  type?: string;
   sector?: string;
 }
