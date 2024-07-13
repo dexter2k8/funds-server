@@ -67,6 +67,31 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     expect(response.status).toBe(200);
     expect(response.body.value).toEqual(200);
   });
+
+  test("DELETE /transactions/:id -  should not be able to remove transaction without authentication", async () => {
+    const response = await request(app).delete(`/transactions/${transaction.body.id}`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(401);
+  });
+
+  test("DELETE /transactions/:id -  should not be able to remove transaction you don't own", async () => {
+    const token = `Bearer ${adminLogin.body.token}`;
+    const transactionTobeRemoveId = transaction.body.id;
+    const response = await request(app)
+      .delete(`/transactions/${transactionTobeRemoveId}`)
+      .set("Authorization", token);
+    expect(response.status).toBe(403);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  test("DELETE /transactions/:id -  should be able to remove transaction", async () => {
+    const token = `Bearer ${userLogin.body.token}`;
+    const transactionTobeRemoveId = transaction.body.id;
+    const response = await request(app)
+      .delete(`/transactions/${transactionTobeRemoveId}`)
+      .set("Authorization", token);
+    expect(response.status).toBe(204);
+  });
 });
 
 export default describe;

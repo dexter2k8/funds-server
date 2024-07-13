@@ -56,3 +56,15 @@ export function updateTransactionService(
     callback(null, row);
   });
 }
+
+export function deleteTransactionService(
+  id: string,
+  callback: (err: Error | null, row?: unknown) => void
+) {
+  const sql = "DELETE FROM transactions WHERE id = ?";
+  const params = [id];
+  database.run(sql, params, function (err) {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, { deleted: !!this.changes });
+  });
+}
