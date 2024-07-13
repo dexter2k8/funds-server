@@ -4,16 +4,18 @@ import { promisify } from "util";
 import * as usersRoutes from "../routes/userRoutes.test";
 import * as loginRoutes from "../routes/loginRoutes.test";
 import * as fundsRoutes from "../routes/fundsRoutes.test";
+import * as transactionsRoutes from "../routes/transactionsRoutes.test";
 
 export let user: request.Response;
 export let admin: request.Response;
 export let userLogin: request.Response;
 export let adminLogin: request.Response;
 export let fund: request.Response;
+export let transaction: request.Response;
 
 import sqlite3 from "sqlite3";
 import database, { SQL_CREATE_TABLES } from "../../data-source";
-import { mockedAdmin, mockedFund, mockedUser } from "../mocks";
+import { mockedAdmin, mockedFund, mockedTransaction, mockedUser } from "../mocks";
 import app from "../../app";
 
 const createNodeSqlite2Executor = (db: sqlite3.Database) => {
@@ -34,8 +36,13 @@ beforeAll(async () => {
     .post("/funds")
     .set("Authorization", `Bearer ${adminLogin.body.token}`)
     .send(mockedFund);
+  transaction = await request(app)
+    .post("/transactions")
+    .set("Authorization", `Bearer ${userLogin.body.token}`)
+    .send(mockedTransaction);
 });
 
 usersRoutes;
 loginRoutes;
 fundsRoutes;
+transactionsRoutes;

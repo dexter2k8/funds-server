@@ -19,3 +19,11 @@ export const mockedFund = {
   type: "FII",
   sector: "Logística",
 };
+
+export const mockedTransaction = {
+  value: 100,
+  date: "2022/07/13",
+  quantity: 2,
+  income: 1,
+  fundAlias: "HGLG11",
+};
