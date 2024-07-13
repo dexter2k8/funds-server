@@ -17,8 +17,8 @@ export const SQL_CREATE_TABLES = `
 	"id"	VARCHAR NOT NULL,
 	"alias"	VARCHAR(10) NOT NULL UNIQUE,
 	"name"	VARCHAR(50) NOT NULL,
-	"description"	VARCHAR(300),
-	"type"	VARCHAR(50) NOT NULL,
+	"description"	VARCHAR(200),
+	"type"	VARCHAR(10) NOT NULL,
 	"sector"	VARCHAR(50),
 	PRIMARY KEY("id")
 );

@@ -11,3 +11,11 @@ export const mockedAdmin = {
   password: "123456",
   admin: true,
 };
+
+export const mockedFund = {
+  alias: "HGLG11",
+  name: "CGHG Logística",
+  description: "Fundo imobiliário especialista em galpões logísticos",
+  type: "FII",
+  sector: "Logística",
+};

@@ -18,3 +18,15 @@ export function createFundService(
     callback(null, row);
   });
 }
+
+export function getFundsService(
+  offset = 0,
+  limit = 10,
+  callback: (err: Error | null, rows?: IFundResponse[]) => void
+) {
+  const sql = `SELECT * FROM funds ORDER BY alias LIMIT ${limit} OFFSET ${offset}`;
+  database.all(sql, function (err, rows: IFundResponse[]) {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, rows);
+  });
+}

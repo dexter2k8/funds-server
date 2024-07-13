@@ -3,6 +3,7 @@ import { beforeAll } from "@jest/globals";
 import { promisify } from "util";
 import * as usersRoutes from "../routes/userRoutes.test";
 import * as loginRoutes from "../routes/loginRoutes.test";
+import * as fundsRoutes from "../routes/fundsRoutes.test";
 
 export let user: request.Response;
 export let admin: request.Response;
@@ -32,3 +33,4 @@ beforeAll(async () => {
 
 usersRoutes;
 loginRoutes;
+fundsRoutes;
