@@ -1,6 +1,6 @@
 import { describe, test, expect } from "@jest/globals";
 import request from "supertest";
-import { transaction, userLogin } from "../integration/index.test";
+import { adminLogin, transaction, userLogin } from "../integration/index.test";
 import app from "../../app";
 import { mockedTransaction } from "../mocks";
 
@@ -11,8 +11,8 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     expect(transaction.body).toHaveProperty("value");
     expect(transaction.body).toHaveProperty("date");
     expect(transaction.body).toHaveProperty("quantity");
-    expect(transaction.body).toHaveProperty("fundAlias");
-    expect(transaction.body).toHaveProperty("userId");
+    expect(transaction.body).toHaveProperty("fund_alias");
+    expect(transaction.body).toHaveProperty("user_id");
   });
 
   test("POST /transactions -  should not be able to create a transaction without authentication", async () => {
@@ -25,7 +25,7 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     const response = await request(app)
       .post("/transactions")
       .set("Authorization", `Bearer ${userLogin.body.token}`)
-      .send({ ...mockedTransaction, fundAlias: "invalid" });
+      .send({ ...mockedTransaction, fund_alias: "invalid" });
     expect(response.body).toHaveProperty("message");
     expect(response.status).toBe(404);
   });
@@ -36,6 +36,36 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
       .set("Authorization", `Bearer ${userLogin.body.token}`);
     expect(response.body).toHaveLength(1);
     expect(response.status).toBe(200);
+  });
+
+  test("PATCH /transactions/:id -  should not be able to update transaction without authentication", async () => {
+    const response = await request(app).patch(`/funds/${transaction.body.alias}`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(401);
+  });
+
+  test("PATCH /transactions/:id -  should not be able to update transaction you don't own", async () => {
+    const newValues = { value: 200 };
+    const token = `Bearer ${adminLogin.body.token}`;
+    const transactionTobeUpdateId = transaction.body.id;
+    const response = await request(app)
+      .patch(`/transactions/${transactionTobeUpdateId}`)
+      .set("Authorization", token)
+      .send(newValues);
+    expect(response.status).toBe(403);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  test("PATCH /transactions/:id -  should be able to update transaction", async () => {
+    const newValues = { value: 200 };
+    const token = `Bearer ${userLogin.body.token}`;
+    const transactionTobeUpdateId = transaction.body.id;
+    const response = await request(app)
+      .patch(`/transactions/${transactionTobeUpdateId}`)
+      .set("Authorization", token)
+      .send(newValues);
+    expect(response.status).toBe(200);
+    expect(response.body.value).toEqual(200);
   });
 });
 

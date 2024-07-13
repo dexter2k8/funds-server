@@ -25,5 +25,5 @@ export const mockedTransaction = {
   date: "2022/07/13",
   quantity: 2,
   income: 1,
-  fundAlias: "HGLG11",
+  fund_alias: "HGLG11",
 };

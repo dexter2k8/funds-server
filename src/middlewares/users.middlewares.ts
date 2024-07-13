@@ -24,7 +24,7 @@ export function userNotFoundMiddleware(req: Request, res: Response, next: NextFu
 
 export function isAdminMiddleware(req: Request, res: Response, next: NextFunction) {
   const sql = "SELECT * FROM users WHERE id = ?";
-  const params = [req.userId?.id];
+  const params = [req.user?.id];
   database.get(sql, params, (err, row: IUserResponse) => {
     if (err) return res.status(400).json(err);
     if (row) delete row["password"];

@@ -51,7 +51,7 @@ export interface ITransactionRequest {
   date: Date;
   quantity: number;
   income?: number;
-  fundAlias: string;
+  fund_alias: string;
 }
 
 export interface ITransactionPatchRequest {
@@ -59,10 +59,10 @@ export interface ITransactionPatchRequest {
   date?: Date;
   quantity?: number;
   income?: number;
-  fundAlias?: string;
+  fund_alias?: string;
 }
 
 export interface ITransactionResponse extends ITransactionRequest {
   id: string;
-  userId: string;
+  user_id: string;
 }

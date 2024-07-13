@@ -6,7 +6,7 @@ export const createTransactionSchema: Schema<ITransactionRequest> = object().sha
   date: date().required(),
   quantity: number().integer().required(),
   income: number(),
-  fundAlias: string().required(),
+  fund_alias: string().required(),
 });
 
 export const updateTransactionSchema: Schema<ITransactionPatchRequest> = object().shape({
@@ -14,5 +14,5 @@ export const updateTransactionSchema: Schema<ITransactionPatchRequest> = object(
   date: date(),
   quantity: number().integer(),
   income: number(),
-  fundAlias: string(),
+  fund_alias: string(),
 });
