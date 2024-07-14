@@ -11,6 +11,7 @@ export interface IUserResponse {
   email: string;
   password?: string;
   admin?: boolean;
+  transactions?: ITransactionResponse[];
 }
 
 export interface IUserPatchRequest {
@@ -64,5 +65,5 @@ export interface ITransactionPatchRequest {
 
 export interface ITransactionResponse extends ITransactionRequest {
   id: string;
-  user_id: string;
+  user_id?: string;
 }

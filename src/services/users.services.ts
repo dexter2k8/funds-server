@@ -1,6 +1,11 @@
 import database from "../data-source";
 import { AppError } from "../errors/appError";
-import { IUserPatchRequest, IUserRequest, IUserResponse } from "../interfaces";
+import {
+  ITransactionResponse,
+  IUserPatchRequest,
+  IUserRequest,
+  IUserResponse,
+} from "../interfaces";
 import { v4 as uuid } from "uuid";
 import { hashSync } from "bcryptjs";
 
@@ -37,12 +42,19 @@ export function retrieveUserService(
   id: string,
   callback: (err: Error | null, row?: IUserResponse) => void
 ) {
-  const sql = "SELECT * FROM users WHERE id = ?";
+  const sqlUser = "SELECT * FROM users WHERE id = ?";
+  const sqlTransactions = "SELECT * FROM transactions WHERE user_id = ?";
   const params = [id];
-  database.get(sql, params, (err, row: IUserResponse) => {
+  let user = {} as IUserResponse;
+  database.get(sqlUser, params, (err, row: IUserResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     delete row["password"];
-    callback(null, row);
+    user = row;
+    database.all(sqlTransactions, params, (err, rows: ITransactionResponse[]) => {
+      if (err) return callback(new AppError(err.message, 400));
+      const transactions = rows.map(({ user_id, ...rest }) => rest);
+      callback(null, { ...user, transactions });
+    });
   });
 }
 
