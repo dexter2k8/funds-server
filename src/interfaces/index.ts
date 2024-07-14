@@ -11,7 +11,6 @@ export interface IUserResponse {
   email: string;
   password?: string;
   admin?: boolean;
-  transactions?: ITransactionResponse[];
 }
 
 export interface IUserPatchRequest {
@@ -52,7 +51,7 @@ export interface ITransactionRequest {
   date: Date;
   quantity: number;
   income?: number;
-  fund_alias: string;
+  fund_alias?: string;
 }
 
 export interface ITransactionPatchRequest {

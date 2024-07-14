@@ -30,6 +30,13 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     expect(response.status).toBe(404);
   });
 
+  test("GET /transactions -  should not be able to retrieve transaction without authentication", async () => {
+    const fundTobeRetrievedAlias = transaction.body.fundAlias;
+    const response = await request(app).get(`/transactions`);
+    expect(response.body).toHaveProperty("message");
+    expect(response.status).toBe(401);
+  });
+
   test("GET /transactions -  Must be able to list all transactions for logged user", async () => {
     const response = await request(app)
       .get("/transactions")

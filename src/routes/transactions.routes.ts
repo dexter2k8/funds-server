@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createTransactionController,
   deleteTransactionController,
+  getSelfTransactionFundController,
   getSelfTransactionsController,
   updateTransactionController,
 } from "../controllers/transactions.controllers";
@@ -26,6 +27,12 @@ transactionsRoutes.post(
   createTransactionController
 );
 transactionsRoutes.get("", authUserMiddleware, getSelfTransactionsController);
+transactionsRoutes.get(
+  "/:fundAlias",
+  authUserMiddleware,
+  transactionFundExistsMiddleware,
+  getSelfTransactionFundController
+);
 transactionsRoutes.patch(
   "/:id",
   authUserMiddleware,

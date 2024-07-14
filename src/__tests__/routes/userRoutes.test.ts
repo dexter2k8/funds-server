@@ -60,7 +60,7 @@ describe("/users - USERS ROUTE TESTS", () => {
     expect(response.status).toBe(404);
   });
 
-  test("GET /users/:id -  should  be able to retrieve user", async () => {
+  test("GET /users/:id - should be able to retrieve user", async () => {
     const userTobeRetrievedId = user.body.id;
     const response = await request(app)
       .get(`/users/${userTobeRetrievedId}`)

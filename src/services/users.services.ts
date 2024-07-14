@@ -43,18 +43,12 @@ export function retrieveUserService(
   callback: (err: Error | null, row?: IUserResponse) => void
 ) {
   const sqlUser = "SELECT * FROM users WHERE id = ?";
-  const sqlTransactions = "SELECT * FROM transactions WHERE user_id = ?";
   const params = [id];
   let user = {} as IUserResponse;
   database.get(sqlUser, params, (err, row: IUserResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     delete row["password"];
-    user = row;
-    database.all(sqlTransactions, params, (err, rows: ITransactionResponse[]) => {
-      if (err) return callback(new AppError(err.message, 400));
-      const transactions = rows.map(({ user_id, ...rest }) => rest);
-      callback(null, { ...user, transactions });
-    });
+    callback(null, row);
   });
 }
 
