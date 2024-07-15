@@ -30,7 +30,7 @@ export function getSelfTransactionsService(
   fundAlias?: string
 ) {
   const fundFilter = fundAlias ? `AND fund_alias = '${fundAlias}'` : "";
-  const sql = `SELECT transactions.*, funds.* FROM transactions LEFT JOIN funds ON transactions.fund_alias = funds.alias WHERE user_id = '${userId}' ${fundFilter} ORDER BY date LIMIT ${limit} OFFSET ${offset}`;
+  const sql = `SELECT transactions.*, funds.* FROM transactions LEFT JOIN funds ON transactions.fund_alias = funds.alias WHERE user_id = '${userId}' ${fundFilter} ORDER BY updated_at LIMIT ${limit} OFFSET ${offset}`;
   database.all(sql, function (err, rows: ITransactionResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
     const transactions = rows.map(({ user_id, fund_alias, ...rest }) => rest);

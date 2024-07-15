@@ -8,8 +8,8 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
   test("POST /transactions -  Must be able to create a transaction", async () => {
     expect(transaction.status).toBe(201);
     expect(transaction.body).toHaveProperty("id");
-    expect(transaction.body).toHaveProperty("value");
-    expect(transaction.body).toHaveProperty("date");
+    expect(transaction.body).toHaveProperty("price");
+    expect(transaction.body).toHaveProperty("updated_at");
     expect(transaction.body).toHaveProperty("quantity");
     expect(transaction.body).toHaveProperty("fund_alias");
     expect(transaction.body).toHaveProperty("user_id");
@@ -52,7 +52,7 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
   });
 
   test("PATCH /transactions/:id -  should not be able to update transaction you don't own", async () => {
-    const newValues = { value: 200 };
+    const newValues = { price: 200 };
     const token = `Bearer ${adminLogin.body.token}`;
     const transactionTobeUpdateId = transaction.body.id;
     const response = await request(app)
@@ -64,7 +64,7 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
   });
 
   test("PATCH /transactions/:id -  should be able to update transaction", async () => {
-    const newValues = { value: 200 };
+    const newValues = { price: 200 };
     const token = `Bearer ${userLogin.body.token}`;
     const transactionTobeUpdateId = transaction.body.id;
     const response = await request(app)
@@ -72,7 +72,7 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
       .set("Authorization", token)
       .send(newValues);
     expect(response.status).toBe(200);
-    expect(response.body.value).toEqual(200);
+    expect(response.body.price).toEqual(200);
   });
 
   test("DELETE /transactions/:id -  should not be able to remove transaction without authentication", async () => {

@@ -23,8 +23,8 @@ export const SQL_CREATE_TABLES = `
 );
     CREATE TABLE IF NOT EXISTS "transactions" (
 	"id"	VARCHAR NOT NULL,
-	"value"	DECIMAL(10, 2) NOT NULL,
-	"date"	DATE NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+	"price"	DECIMAL(10, 2) NOT NULL,
+	"updated_at"	DATE NOT NULL DEFAULT (CURRENT_TIMESTAMP),
 	"quantity"	DECIMAL(10, 0) NOT NULL,
 	"income"	DECIMAL(10, 2) DEFAULT (0),
 	"fund_alias"	VARCHAR NOT NULL,
