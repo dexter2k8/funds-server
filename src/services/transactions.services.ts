@@ -24,17 +24,21 @@ export function createTransactionService(
 
 export function getSelfTransactionsService(
   userId: string,
-  offset = 0,
-  limit = 10,
-  callback: (err: Error | null, rows?: ITransactionResponse[]) => void,
+  offset = "0",
+  limit = "10",
+  callback: (err: Error | null, rows?: { data: ITransactionResponse[]; count: number }) => void,
   fundAlias?: string
 ) {
   const fundFilter = fundAlias ? `AND fund_alias = '${fundAlias}'` : "";
   const sql = `SELECT transactions.*, funds.* FROM transactions LEFT JOIN funds ON transactions.fund_alias = funds.alias WHERE user_id = '${userId}' ${fundFilter} ORDER BY updated_at LIMIT ${limit} OFFSET ${offset}`;
+  const countSql = `SELECT COUNT (*) AS count FROM transactions WHERE user_id = '${userId}' ${fundFilter}`;
   database.all(sql, function (err, rows: ITransactionResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
     const transactions = rows.map(({ user_id, fund_alias, ...rest }) => rest);
-    callback(null, transactions);
+    database.get(countSql, function (err, count: { count: number }) {
+      if (err) return callback(new AppError(err.message, 400));
+      callback(null, { data: transactions, count: count.count });
+    });
   });
 }
 

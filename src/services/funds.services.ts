@@ -18,14 +18,19 @@ export function createFundService(
 }
 
 export function getFundsService(
-  offset = 0,
-  limit = 10,
-  callback: (err: Error | null, rows?: IFundRequest[]) => void
+  offset = "0",
+  limit = "10",
+  callback: (err: Error | null, rows?: { data: IFundRequest[]; count: number }) => void
 ) {
   const sql = `SELECT * FROM funds ORDER BY alias LIMIT ${limit} OFFSET ${offset}`;
+  const countSql = "SELECT COUNT (*) AS count FROM funds";
+
   database.all(sql, function (err, rows: IFundRequest[]) {
     if (err) return callback(new AppError(err.message, 400));
-    callback(null, rows);
+    database.get(countSql, function (err, count: { count: number }) {
+      if (err) return callback(new AppError(err.message, 400));
+      callback(null, { data: rows, count: count.count });
+    });
   });
 }
 

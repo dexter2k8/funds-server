@@ -26,15 +26,20 @@ export function createUserService(
 }
 
 export function getUsersService(
-  offset = 0,
-  limit = 10,
-  callback: (err: Error | null, rows?: IUserResponse[]) => void
+  offset = "0",
+  limit = "10",
+  callback: (err: Error | null, rows?: { data: IUserResponse[]; count: number }) => void
 ) {
   const sql = `SELECT * FROM users ORDER BY name LIMIT ${limit} OFFSET ${offset}`;
+  const countSql = "SELECT COUNT (*) AS count FROM funds";
+
   database.all(sql, function (err, rows: IUserResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
     const users = rows.map(({ password, ...rest }) => rest);
-    callback(null, users);
+    database.get(countSql, function (err, count: { count: number }) {
+      if (err) return callback(new AppError(err.message, 400));
+      callback(null, { data: users, count: count.count });
+    });
   });
 }
 

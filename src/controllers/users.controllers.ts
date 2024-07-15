@@ -16,8 +16,7 @@ export const createUserController = (req: Request, res: Response, next: NextFunc
 };
 
 export const getUsersController = (req: Request, res: Response) => {
-  const offset = Number(req.query.offset) || 0;
-  const limit = Number(req.query.limit) || 10;
+  const { offset, limit } = req.query as { offset: string; limit: string };
   getUsersService(offset, limit, (err, rows) => {
     if (err) return res.status(400).json(err);
     res.status(200).json(rows);
