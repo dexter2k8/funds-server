@@ -14,19 +14,31 @@ export const createTransactionController = (req: Request, res: Response, next: N
 };
 
 export const getSelfTransactionsController = (req: Request, res: Response) => {
-  const { offset, limit } = req.query as { offset: string; limit: string };
-  getSelfTransactionsService(req.user!.id, offset, limit, (err, rows) => {
+  const { offset, limit, init_date, end_date } = req.query as {
+    offset: string;
+    limit: string;
+    init_date: string;
+    end_date: string;
+  };
+  getSelfTransactionsService(req.user!.id, offset, limit, init_date, end_date, (err, rows) => {
     if (err) return res.status(400).json(err);
     res.status(200).json(rows);
   });
 };
 
 export const getSelfTransactionFundController = (req: Request, res: Response) => {
-  const { offset, limit } = req.query as { offset: string; limit: string };
+  const { offset, limit, init_date, end_date } = req.query as {
+    offset: string;
+    limit: string;
+    init_date: string;
+    end_date: string;
+  };
   getSelfTransactionsService(
     req.user!.id,
     offset,
     limit,
+    init_date,
+    end_date,
     (err, rows) => {
       if (err) return res.status(400).json(err);
       res.status(200).json(rows);

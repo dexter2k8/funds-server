@@ -26,18 +26,36 @@ export function getSelfTransactionsService(
   userId: string,
   offset = "0",
   limit = "10",
-  callback: (err: Error | null, rows?: { data: ITransactionResponse[]; count: number }) => void,
+  init_date: string,
+  end_date: string,
+  callback: (err: Error | null, rows?: { data: ITransactionResponse[]; totals: unknown }) => void,
   fundAlias?: string
 ) {
   const fundFilter = fundAlias ? `AND fund_alias = '${fundAlias}'` : "";
-  const sql = `SELECT transactions.*, funds.* FROM transactions LEFT JOIN funds ON transactions.fund_alias = funds.alias WHERE user_id = '${userId}' ${fundFilter} ORDER BY updated_at LIMIT ${limit} OFFSET ${offset}`;
-  const countSql = `SELECT COUNT (*) AS count FROM transactions WHERE user_id = '${userId}' ${fundFilter}`;
+  const dateFilter =
+    init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
+
+  const sql = `SELECT transactions.*, funds.*,
+  (transactions.price * transactions.quantity) AS patrimony,
+  (transactions.income * 100.0 / (transactions.price * transactions.quantity)) AS pvp
+  FROM transactions 
+  LEFT JOIN funds 
+  ON transactions.fund_alias = funds.alias 
+  WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
+  ORDER BY updated_at LIMIT ${limit} OFFSET ${offset}`;
+
+  const countSql = `SELECT COUNT (*) AS count,
+  SUM(income * 100.0 / (price * quantity)) AS sum_pvp,
+  SUM(income) AS sum_incomes
+  FROM transactions 
+  WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}`;
+
   database.all(sql, function (err, rows: ITransactionResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
     const transactions = rows.map(({ user_id, fund_alias, ...rest }) => rest);
-    database.get(countSql, function (err, count: { count: number }) {
+    database.get(countSql, function (err, totals) {
       if (err) return callback(new AppError(err.message, 400));
-      callback(null, { data: transactions, count: count.count });
+      callback(null, { data: transactions, totals });
     });
   });
 }
