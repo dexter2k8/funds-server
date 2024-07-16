@@ -48,7 +48,7 @@ export interface IFundPatchRequest {
 
 export interface ITransactionRequest {
   price: number;
-  updated_at: Date;
+  updated_at?: string;
   quantity: number;
   income?: number;
   fund_alias?: string;
@@ -56,7 +56,7 @@ export interface ITransactionRequest {
 
 export interface ITransactionPatchRequest {
   price?: number;
-  updated_at?: Date;
+  updated_at?: string;
   quantity?: number;
   income?: number;
   fund_alias?: string;
