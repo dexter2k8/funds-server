@@ -33,29 +33,34 @@ export function getSelfTransactionsService(
   limit = "10",
   init_date: string,
   end_date: string,
+  group_by: string,
   callback: (err: Error | null, rows?: { data: ITransactionResponse[]; totals: unknown }) => void,
   fundAlias?: string
 ) {
   const fundFilter = fundAlias ? `AND fund_alias = '${fundAlias}'` : "";
   const dateFilter =
     init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
+  const groupFilter = group_by ? `GROUP BY ${group_by}` : "";
 
   const sql = `SELECT transactions.*,
   (transactions.price * transactions.quantity) AS patrimony,
   (transactions.income * 100.0 / (transactions.price * transactions.quantity)) AS pvp
   FROM transactions 
-  WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
-  ORDER BY updated_at LIMIT ${limit} OFFSET ${offset}`;
+  WHERE user_id = '${userId}' ${fundFilter} ${dateFilter} ${groupFilter}
+  ORDER BY updated_at 
+  LIMIT ${limit} OFFSET ${offset}
+  `;
 
   const countSql = `SELECT COUNT (*) AS count,
   SUM(income * 100.0 / (price * quantity)) AS sum_pvp,
   SUM(income) AS sum_incomes
   FROM transactions 
-  WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}`;
+  WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
+  `;
 
   database.all(sql, function (err, rows: ITransactionResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
-    const transactions = rows.map(({ user_id, fund_alias, ...rest }) => rest);
+    const transactions = rows.map(({ user_id, ...rest }) => rest);
     database.get(countSql, function (err, totals) {
       if (err) return callback(new AppError(err.message, 400));
       callback(null, { data: transactions, totals });
