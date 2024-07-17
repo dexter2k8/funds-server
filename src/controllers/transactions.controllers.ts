@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   createTransactionService,
   deleteTransactionService,
+  getSelfProfitsService,
   getSelfTransactionsService,
   updateTransactionService,
 } from "../services/transactions.services";
@@ -45,6 +46,18 @@ export const getSelfTransactionFundController = (req: Request, res: Response) =>
     },
     req.params.fundAlias
   );
+};
+
+export const getSelfProfitsController = (req: Request, res: Response) => {
+  const { fund_alias, init_date, end_date } = req.query as {
+    fund_alias: string;
+    init_date: string;
+    end_date: string;
+  };
+  getSelfProfitsService(req.user!.id, fund_alias, init_date, end_date, (err, rows) => {
+    if (err) return res.status(400).json(err);
+    res.status(200).json(rows);
+  });
 };
 
 export const updateTransactionController = (req: Request, res: Response, next: NextFunction) => {

@@ -1,6 +1,11 @@
 import database from "../data-source";
 import { AppError } from "../errors/appError";
-import { ITransactionPatchRequest, ITransactionRequest, ITransactionResponse } from "../interfaces";
+import {
+  ITransactionPatchRequest,
+  ITransactionProfit,
+  ITransactionRequest,
+  ITransactionResponse,
+} from "../interfaces";
 import { v4 as uuid } from "uuid";
 
 export function createTransactionService(
@@ -35,12 +40,10 @@ export function getSelfTransactionsService(
   const dateFilter =
     init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
 
-  const sql = `SELECT transactions.*, funds.*,
+  const sql = `SELECT transactions.*,
   (transactions.price * transactions.quantity) AS patrimony,
   (transactions.income * 100.0 / (transactions.price * transactions.quantity)) AS pvp
   FROM transactions 
-  LEFT JOIN funds 
-  ON transactions.fund_alias = funds.alias 
   WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
   ORDER BY updated_at LIMIT ${limit} OFFSET ${offset}`;
 
@@ -56,6 +59,73 @@ export function getSelfTransactionsService(
     database.get(countSql, function (err, totals) {
       if (err) return callback(new AppError(err.message, 400));
       callback(null, { data: transactions, totals });
+    });
+  });
+}
+
+export function getSelfProfitsService(
+  userId: string,
+  fund_alias: string,
+  init_date: string,
+  end_date: string,
+  callback: (err: Error | null, rows?: unknown) => void
+) {
+  const fundFilter = fund_alias ? `AND fund_alias = '${fund_alias}'` : "";
+  const dateFilter =
+    init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
+
+  const sql = `SELECT strftime('%Y-%m', updated_at) AS year_month,
+  SUM(income) AS sum_incomes
+  FROM transactions 
+  WHERE user_id = '${userId}' ${dateFilter} ${fundFilter}
+  GROUP BY strftime('%Y-%m', updated_at)
+  `;
+
+  const profitSql = `WITH FirstValuePerMonth AS (
+  SELECT fund_alias,
+    strftime('%Y-%m', updated_at) AS year_month,
+    price,
+    quantity,
+    ROW_NUMBER() OVER (PARTITION BY fund_alias, strftime('%Y-%m', updated_at) ORDER BY updated_at) AS row_num
+  FROM transactions
+  WHERE user_id = '${userId}' ${dateFilter} ${fundFilter}
+),
+FirstValuePerMonthFiltered AS (
+  SELECT
+    fund_alias,
+    year_month,
+    price,
+    quantity
+  FROM
+    FirstValuePerMonth
+  WHERE
+    row_num = 1
+)
+SELECT
+  year_month,
+  SUM(price * quantity) AS sum_patrimony
+FROM
+  FirstValuePerMonthFiltered
+GROUP BY
+  year_month
+ORDER BY
+  year_month
+  `;
+
+  database.all(sql, function (err, rows: ITransactionProfit[]) {
+    if (err) return callback(new AppError(err.message, 400));
+    database.all(profitSql, function (err, totals: ITransactionProfit[]) {
+      if (err) return callback(new AppError(err.message, 400));
+      const transactions = rows.map((transaction) => {
+        const total = totals.find((t) => t.year_month === transaction.year_month);
+        return {
+          year_month: transaction.year_month,
+          sum_incomes: transaction.sum_incomes,
+          sum_patrimony: total ? total.sum_patrimony : null,
+        };
+      });
+
+      callback(null, transactions);
     });
   });
 }

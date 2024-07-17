@@ -66,3 +66,9 @@ export interface ITransactionResponse extends ITransactionRequest {
   id: string;
   user_id?: string;
 }
+
+export interface ITransactionProfit {
+  year_month: string;
+  sum_incomes?: string;
+  sum_patrimony?: string;
+}
