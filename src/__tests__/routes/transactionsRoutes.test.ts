@@ -45,6 +45,16 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
+  test("GET /transactions/self-profits -  Must be able to list all profits", async () => {
+    const response = await request(app)
+      .get("/transactions/self-profits")
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+    expect(response.body[0]).toHaveProperty("year_month");
+    expect(response.body[0]).toHaveProperty("sum_incomes");
+    expect(response.body[0]).toHaveProperty("sum_patrimony");
+    expect(response.status).toBe(200);
+  });
+
   test("PATCH /transactions/:id -  should not be able to update transaction without authentication", async () => {
     const response = await request(app).patch(`/funds/${transaction.body.alias}`);
     expect(response.body).toHaveProperty("message");
