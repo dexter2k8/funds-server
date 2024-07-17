@@ -25,8 +25,8 @@ describe("/users - USERS ROUTE TESTS", () => {
     const response = await request(app)
       .get("/users")
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
-    expect(response.body).toHaveLength(2);
-    expect(response.body[0]).not.toHaveProperty("password");
+    expect(response.body.data).toHaveLength(2);
+    expect(response.body.data[0]).not.toHaveProperty("password");
   });
 
   test("GET /users -  should not be able to list users without authentication", async () => {

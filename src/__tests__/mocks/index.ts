@@ -22,8 +22,8 @@ export const mockedFund = {
 
 export const mockedTransaction = {
   price: 100,
-  updated_at: "2022/07/13",
   quantity: 2,
+  updated_at: "2022-07-13",
   income: 1,
   fund_alias: "HGLG11",
 };

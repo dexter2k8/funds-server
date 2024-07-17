@@ -27,7 +27,7 @@ describe("/funds - FUNDS ROUTE TEST", () => {
     const response = await request(app)
       .get("/funds")
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
-    expect(response.body).toHaveLength(1);
+    expect(response.body.data).toHaveLength(1);
     expect(response.status).toBe(200);
   });
 
