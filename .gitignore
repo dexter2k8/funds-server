@@ -1,4 +1,5 @@
 /node_modules
 /.vscode
 .env
+Insomnia_FundsExplorer.json
 /dist
