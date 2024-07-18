@@ -135,6 +135,27 @@ ORDER BY
   });
 }
 
+export function getSelfPatrimonyByTypeService(
+  userId: string,
+  callback: (err: Error | null, rows?: unknown) => void
+) {
+  const sql = `SELECT
+  funds.type,
+  SUM(transactions.price * transactions.quantity) AS sum_patrimony
+FROM
+  transactions
+  INNER JOIN funds ON transactions.fund_alias = funds.alias
+WHERE
+  user_id = '${userId}'
+GROUP BY
+  funds.type
+  `;
+  database.all(sql, function (err, rows: ITransactionProfit[]) {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, rows);
+  });
+}
+
 export function updateTransactionService(
   id: string,
   userId: string,

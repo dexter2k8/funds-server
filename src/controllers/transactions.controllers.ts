@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   createTransactionService,
   deleteTransactionService,
+  getSelfPatrimonyByTypeService,
   getSelfProfitsService,
   getSelfTransactionsService,
   updateTransactionService,
@@ -66,6 +67,13 @@ export const getSelfProfitsController = (req: Request, res: Response) => {
     end_date: string;
   };
   getSelfProfitsService(req.user!.id, fund_alias, init_date, end_date, (err, rows) => {
+    if (err) return res.status(400).json(err);
+    res.status(200).json(rows);
+  });
+};
+
+export const getSelfPatrimonyByTypeController = (req: Request, res: Response) => {
+  getSelfPatrimonyByTypeService(req.user!.id, (err, rows) => {
     if (err) return res.status(400).json(err);
     res.status(200).json(rows);
   });
