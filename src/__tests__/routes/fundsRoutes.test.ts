@@ -1,17 +1,21 @@
 import { describe, test, expect } from "@jest/globals";
 import request from "supertest";
-import { mockedFund } from "../mocks";
+import { mockedFund, mockedFundToDelete } from "../mocks";
 import { adminLogin, fund, userLogin } from "../integration/index.test";
 import app from "../../app";
 
 describe("/funds - FUNDS ROUTE TEST", () => {
   test("POST /funds -  Must be able to create a fund", async () => {
-    expect(fund.status).toBe(201);
-    expect(fund.body).toHaveProperty("alias");
-    expect(fund.body).toHaveProperty("name");
-    expect(fund.body).toHaveProperty("description");
-    expect(fund.body).toHaveProperty("type");
-    expect(fund.body).toHaveProperty("sector");
+    const response = await request(app)
+      .post("/funds")
+      .set("Authorization", `Bearer ${adminLogin.body.token}`)
+      .send(mockedFundToDelete);
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("alias");
+    expect(response.body).toHaveProperty("name");
+    expect(response.body).toHaveProperty("description");
+    expect(response.body).toHaveProperty("type");
+    expect(response.body).toHaveProperty("sector");
   });
 
   test("POST /funds -  Should not be able to create fund that already exists", async () => {
@@ -27,7 +31,7 @@ describe("/funds - FUNDS ROUTE TEST", () => {
     const response = await request(app)
       .get("/funds")
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
-    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data).toHaveLength(2);
     expect(response.status).toBe(200);
   });
 
@@ -114,7 +118,7 @@ describe("/funds - FUNDS ROUTE TEST", () => {
 
   test("DELETE /funds/:alias -  Must be able to delete fund", async () => {
     const response = await request(app)
-      .delete(`/funds/${fund.body.alias}`)
+      .delete(`/funds/PETR4`)
       .set("Authorization", `Bearer ${adminLogin.body.token}`);
     expect(response.status).toBe(204);
   });

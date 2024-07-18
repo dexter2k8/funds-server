@@ -20,6 +20,14 @@ export const mockedFund = {
   sector: "Logística",
 };
 
+export const mockedFundToDelete = {
+  alias: "PETR4",
+  name: "Petrobrás",
+  description: "Petrolífera",
+  type: "Ação",
+  sector: "Estatal",
+};
+
 export const mockedTransaction = {
   price: 100,
   quantity: 2,
