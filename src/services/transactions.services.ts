@@ -40,7 +40,8 @@ export function getSelfTransactionsService(
   `;
   database.all(sql, function (err, rows: ITransactionResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
-    callback(null, rows);
+    const transactions = rows.map(({ user_id, ...rest }) => rest);
+    callback(null, transactions);
   });
 }
 
