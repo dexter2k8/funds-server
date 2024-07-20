@@ -46,28 +46,26 @@ export interface IFundPatchRequest {
   sector?: string;
 }
 
-export interface ITransactionRequest {
+export interface IIncomeRequest {
   price: number;
   updated_at?: string;
-  quantity: number;
   income?: number;
   fund_alias?: string;
 }
 
-export interface ITransactionPatchRequest {
+export interface IIncomePatchRequest {
   price?: number;
   updated_at?: string;
-  quantity?: number;
   income?: number;
   fund_alias?: string;
 }
 
-export interface ITransactionResponse extends ITransactionRequest {
+export interface IIncomeResponse extends IIncomeRequest {
   id: string;
   user_id?: string;
 }
 
-export interface ITransactionProfit {
+export interface IIncomeProfit {
   year_month: string;
   sum_incomes?: string;
   sum_patrimony?: string;

@@ -28,9 +28,8 @@ export const mockedFundToDelete = {
   sector: "Estatal",
 };
 
-export const mockedTransaction = {
+export const mockedIncome = {
   price: 100,
-  quantity: 2,
   updated_at: "2022-07-13",
   income: 1,
   fund_alias: "HGLG11",

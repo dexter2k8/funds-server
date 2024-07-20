@@ -1,11 +1,6 @@
 import database from "../data-source";
 import { AppError } from "../errors/appError";
-import {
-  ITransactionResponse,
-  IUserPatchRequest,
-  IUserRequest,
-  IUserResponse,
-} from "../interfaces";
+import { IIncomeResponse, IUserPatchRequest, IUserRequest, IUserResponse } from "../interfaces";
 import { v4 as uuid } from "uuid";
 import { hashSync } from "bcryptjs";
 

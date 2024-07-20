@@ -1,40 +1,33 @@
 import database from "../data-source";
 import { AppError } from "../errors/appError";
-import {
-  ITransactionPatchRequest,
-  ITransactionProfit,
-  ITransactionRequest,
-  ITransactionResponse,
-} from "../interfaces";
+import { IIncomePatchRequest, IIncomeProfit, IIncomeRequest, IIncomeResponse } from "../interfaces";
 import { v4 as uuid } from "uuid";
 
-export function createTransactionService(
+export function createIncomeService(
   userId: string,
-  transaction: ITransactionRequest,
+  income: IIncomeRequest,
   callback: (err: Error | null, row?: unknown) => void
 ) {
-  const keys = ["id", ...Object.keys(transaction), "user_id"];
-  const values = Object.values(transaction);
+  const keys = ["id", ...Object.keys(income), "user_id"];
+  const values = Object.values(income);
   const mark = Array(keys.length).fill("?");
-  const sql = `INSERT INTO transactions (${keys.join(", ")}) VALUES (${mark.join(
-    ", "
-  )}) RETURNING *`;
+  const sql = `INSERT INTO incomes (${keys.join(", ")}) VALUES (${mark.join(", ")}) RETURNING *`;
   const id = uuid();
   const params = [id, ...values, userId];
-  database.get(sql, params, (err, row: ITransactionResponse) => {
+  database.get(sql, params, (err, row: IIncomeResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     callback(null, row);
   });
 }
 
-export function getSelfTransactionsService(
+export function getSelfIncomesService(
   userId: string,
   offset = "0",
   limit = "10",
   init_date: string,
   end_date: string,
   group_by: string,
-  callback: (err: Error | null, rows?: { data: ITransactionResponse[]; totals: unknown }) => void,
+  callback: (err: Error | null, rows?: { data: IIncomeResponse[]; totals: unknown }) => void,
   fundAlias?: string
 ) {
   const fundFilter = fundAlias ? `AND fund_alias = '${fundAlias}'` : "";
@@ -42,28 +35,42 @@ export function getSelfTransactionsService(
     init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
   const groupFilter = group_by ? `GROUP BY ${group_by}` : "";
 
-  const sql = `SELECT transactions.*,
-  (transactions.price * transactions.quantity) AS patrimony,
-  (transactions.income * 100.0 / (transactions.price * transactions.quantity)) AS pvp
-  FROM transactions 
+  //*** TODO: AJUSTAR ANTIGO ***
+  // const sql = `SELECT incomes.*,
+  // (incomes.price * incomes.quantity) AS patrimony,
+  // (incomes.income * 100.0 / (incomes.price * incomes.quantity)) AS pvp
+  // FROM incomes
+  // WHERE user_id = '${userId}' ${fundFilter} ${dateFilter} ${groupFilter}
+  // ORDER BY updated_at
+  // LIMIT ${limit} OFFSET ${offset}
+  // `;
+
+  // const countSql = `SELECT COUNT (*) AS count,
+  // SUM(income * 100.0 / (price * quantity)) AS sum_pvp,
+  // SUM(income) AS sum_incomes
+  // FROM incomes
+  // WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
+  // `;
+
+  const sql = `SELECT incomes.*
+  FROM incomes 
   WHERE user_id = '${userId}' ${fundFilter} ${dateFilter} ${groupFilter}
   ORDER BY updated_at 
   LIMIT ${limit} OFFSET ${offset}
   `;
 
   const countSql = `SELECT COUNT (*) AS count,
-  SUM(income * 100.0 / (price * quantity)) AS sum_pvp,
   SUM(income) AS sum_incomes
-  FROM transactions 
+  FROM incomes 
   WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
   `;
 
-  database.all(sql, function (err, rows: ITransactionResponse[]) {
+  database.all(sql, function (err, rows: IIncomeResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
-    const transactions = rows.map(({ user_id, ...rest }) => rest);
+    const incomes = rows.map(({ user_id, ...rest }) => rest);
     database.get(countSql, function (err, totals) {
       if (err) return callback(new AppError(err.message, 400));
-      callback(null, { data: transactions, totals });
+      callback(null, { data: incomes, totals });
     });
   });
 }
@@ -81,7 +88,7 @@ export function getSelfProfitsService(
 
   const sql = `SELECT strftime('%Y-%m', updated_at) AS year_month,
   SUM(income) AS sum_incomes
-  FROM transactions 
+  FROM incomes 
   WHERE user_id = '${userId}' ${dateFilter} ${fundFilter}
   GROUP BY strftime('%Y-%m', updated_at)
   `;
@@ -92,7 +99,7 @@ export function getSelfProfitsService(
     price,
     quantity,
     ROW_NUMBER() OVER (PARTITION BY fund_alias, strftime('%Y-%m', updated_at) ORDER BY updated_at) AS row_num
-  FROM transactions
+  FROM incomes
   WHERE user_id = '${userId}' ${dateFilter} ${fundFilter}
 ),
 FirstValuePerMonthFiltered AS (
@@ -117,20 +124,20 @@ ORDER BY
   year_month
   `;
 
-  database.all(sql, function (err, rows: ITransactionProfit[]) {
+  database.all(sql, function (err, rows: IIncomeProfit[]) {
     if (err) return callback(new AppError(err.message, 400));
-    database.all(profitSql, function (err, totals: ITransactionProfit[]) {
+    database.all(profitSql, function (err, totals: IIncomeProfit[]) {
       if (err) return callback(new AppError(err.message, 400));
-      const transactions = rows.map((transaction) => {
-        const total = totals.find((t) => t.year_month === transaction.year_month);
+      const incomes = rows.map((income) => {
+        const total = totals.find((t) => t.year_month === income.year_month);
         return {
-          year_month: transaction.year_month,
-          sum_incomes: transaction.sum_incomes,
+          year_month: income.year_month,
+          sum_incomes: income.sum_incomes,
           sum_patrimony: total ? total.sum_patrimony : null,
         };
       });
 
-      callback(null, transactions);
+      callback(null, incomes);
     });
   });
 }
@@ -141,48 +148,48 @@ export function getSelfPatrimonyByTypeService(
 ) {
   const sql = `SELECT
   funds.type,
-  SUM(transactions.price * transactions.quantity) AS sum_patrimony
+  SUM(incomes.price * incomes.quantity) AS sum_patrimony
 FROM
-  transactions
-  INNER JOIN funds ON transactions.fund_alias = funds.alias
+  incomes
+  INNER JOIN funds ON incomes.fund_alias = funds.alias
 WHERE
   user_id = '${userId}'
 GROUP BY
   funds.type
   `;
-  database.all(sql, function (err, rows: ITransactionProfit[]) {
+  database.all(sql, function (err, rows: IIncomeProfit[]) {
     if (err) return callback(new AppError(err.message, 400));
     callback(null, rows);
   });
 }
 
-export function updateTransactionService(
+export function updateIncomeService(
   id: string,
   userId: string,
-  transaction: ITransactionPatchRequest,
-  callback: (err: Error | null, row?: ITransactionPatchRequest) => void
+  income: IIncomePatchRequest,
+  callback: (err: Error | null, row?: IIncomePatchRequest) => void
 ) {
-  const isEmpty = Object.keys(transaction).length === 0;
+  const isEmpty = Object.keys(income).length === 0;
   if (isEmpty) return callback(new AppError("Missing fields", 400));
 
   if (!id) return callback(new AppError("Missing id", 400));
 
-  const keys = [...Object.keys(transaction), "user_id"];
-  const values = [...Object.values(transaction), userId];
+  const keys = [...Object.keys(income), "user_id"];
+  const values = [...Object.values(income), userId];
   const query = keys.map((el) => `${el} = ?`);
-  const sql = `UPDATE transactions SET ${query.join(",")} WHERE id = ? RETURNING *`;
+  const sql = `UPDATE incomes SET ${query.join(",")} WHERE id = ? RETURNING *`;
   const params = [...values, id];
-  database.get(sql, params, (err, row: ITransactionResponse) => {
+  database.get(sql, params, (err, row: IIncomeResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     callback(null, row);
   });
 }
 
-export function deleteTransactionService(
+export function deleteIncomeService(
   id: string,
   callback: (err: Error | null, row?: unknown) => void
 ) {
-  const sql = "DELETE FROM transactions WHERE id = ?";
+  const sql = "DELETE FROM incomes WHERE id = ?";
   const params = [id];
   database.run(sql, params, function (err) {
     if (err) return callback(new AppError(err.message, 400));
