@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   createTransactionService,
+  deleteTransactionService,
   getSelfTransactionsService,
   updateTransactionService,
 } from "../services/transactions.services";
@@ -36,5 +37,12 @@ export const updateTransactionController = (req: Request, res: Response, next: N
   updateTransactionService(req.params.id, req.user!.id, req.body, (err, row) => {
     if (err) return next(err);
     res.status(200).json(row);
+  });
+};
+
+export const deleteTransactionController = (req: Request, res: Response, next: NextFunction) => {
+  deleteTransactionService(req.params.id, (err, row) => {
+    if (err) return next(err);
+    res.status(204).json(row);
   });
 };

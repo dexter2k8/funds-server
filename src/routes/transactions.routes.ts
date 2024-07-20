@@ -7,6 +7,7 @@ import {
 } from "../serializers/transactions.schemas";
 import {
   createTransactionController,
+  deleteTransactionController,
   getSelfTransactionsController,
   updateTransactionController,
 } from "../controllers/transactions.controllers";
@@ -29,6 +30,12 @@ transactionsRoutes.patch(
   dataValidateMiddleware(updateTransactionSchema),
   transactionNotOwnerMiddleware,
   updateTransactionController
+);
+transactionsRoutes.delete(
+  "/:id",
+  authUserMiddleware,
+  transactionNotOwnerMiddleware,
+  deleteTransactionController
 );
 
 export default transactionsRoutes;
