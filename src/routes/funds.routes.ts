@@ -9,7 +9,10 @@ import {
 import { authUserMiddleware } from "../middlewares/authUserMiddleware";
 import { dataValidateMiddleware } from "../middlewares/dataValidate.middleware";
 import { createFundSchema, updateFundSchema } from "../serializers/funds.schemas";
-import { fundExistsMiddleware, fundNotFoundMiddleware } from "../middlewares/funds.middlewares";
+import {
+  fundAlreadyRegisteredMiddleware,
+  fundNotFoundMiddleware,
+} from "../middlewares/funds.middlewares";
 import { isAdminMiddleware } from "../middlewares/users.middlewares";
 
 const fundRoutes = Router();
@@ -18,7 +21,7 @@ fundRoutes.post(
   "",
   authUserMiddleware,
   dataValidateMiddleware(createFundSchema),
-  fundExistsMiddleware,
+  fundAlreadyRegisteredMiddleware,
   createFundController
 );
 fundRoutes.get("", authUserMiddleware, getFundsController);

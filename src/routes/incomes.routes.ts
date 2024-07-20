@@ -10,11 +10,9 @@ import {
 } from "../controllers/incomes.controllers";
 import { dataValidateMiddleware } from "../middlewares/dataValidate.middleware";
 import { createIncomeSchema, updateIncomeSchema } from "../serializers/incomes.schemas";
-import {
-  incomeFundExistsMiddleware,
-  incomeNotOwnerMiddleware,
-} from "../middlewares/incomes.middlewares";
+import { incomeNotOwnerMiddleware } from "../middlewares/incomes.middlewares";
 import { authUserMiddleware } from "../middlewares/authUserMiddleware";
+import { fundExistsMiddleware } from "../middlewares/fundExists.middleware";
 
 const incomesRoutes = Router();
 
@@ -22,7 +20,7 @@ incomesRoutes.post(
   "",
   authUserMiddleware,
   dataValidateMiddleware(createIncomeSchema),
-  incomeFundExistsMiddleware,
+  fundExistsMiddleware,
   createIncomeController
 );
 incomesRoutes.get("", authUserMiddleware, getSelfIncomesController);
@@ -31,7 +29,7 @@ incomesRoutes.get("/patrimony", authUserMiddleware, getSelfPatrimonyByTypeContro
 incomesRoutes.get(
   "/:fundAlias",
   authUserMiddleware,
-  incomeFundExistsMiddleware,
+  fundExistsMiddleware,
   getSelfIncomesFundController
 );
 incomesRoutes.patch(

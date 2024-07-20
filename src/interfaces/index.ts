@@ -70,3 +70,22 @@ export interface IIncomeProfit {
   sum_incomes?: string;
   sum_patrimony?: string;
 }
+
+export interface ITransactionRequest {
+  price: number;
+  bought_at?: string;
+  quantity?: number;
+  fund_alias?: string;
+}
+
+export interface ITransactionPatchRequest {
+  price?: number;
+  bought_at?: string;
+  quantity?: number;
+  fund_alias?: string;
+}
+
+export interface ITransactionResponse extends ITransactionRequest {
+  id: string;
+  user_id?: string;
+}

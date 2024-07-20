@@ -32,7 +32,7 @@ export const SQL_CREATE_TABLES = `
 	FOREIGN KEY("fund_alias") REFERENCES "funds"("alias") ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-	CREATE TABLE "transactions" (
+	CREATE TABLE IF NOT EXISTS "transactions" (
 	"id"	VARCHAR NOT NULL,
 	"bought_at"	VARCHAR(10) DEFAULT (date('now')),
 	"price"	DECIMAL(10, 2) NOT NULL,
