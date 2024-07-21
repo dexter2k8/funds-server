@@ -28,40 +28,34 @@ export function getSelfIncomesService(
   end_date: string,
   group_by: string,
   callback: (err: Error | null, rows?: { data: IIncomeResponse[]; totals: unknown }) => void,
-  fundAlias?: string
+  fund_alias?: string
 ) {
-  const fundFilter = fundAlias ? `AND fund_alias = '${fundAlias}'` : "";
+  const fundFilter = fund_alias ? `AND i.fund_alias = '${fund_alias}'` : "";
   const dateFilter =
     init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
-  const groupFilter = group_by ? `GROUP BY ${group_by}` : "";
+  const groupFilter = group_by ? `GROUP BY i.${group_by}` : "";
 
-  //*** TODO: AJUSTAR ANTIGO ***
-  // const sql = `SELECT incomes.*,
-  // (incomes.price * incomes.quantity) AS patrimony,
-  // (incomes.income * 100.0 / (incomes.price * incomes.quantity)) AS pvp
-  // FROM incomes
-  // WHERE user_id = '${userId}' ${fundFilter} ${dateFilter} ${groupFilter}
-  // ORDER BY updated_at
-  // LIMIT ${limit} OFFSET ${offset}
-  // `;
+  const sql = `SELECT 
+    i.*, 
+    t.quantity,
+    (i.price * t.quantity) AS patrimony
+FROM incomes i
+LEFT JOIN transactions t
+ON i.fund_alias = t.fund_alias
+AND 
+    t.bought_at = (
+        SELECT MAX(t2.bought_at)
+        FROM transactions t2
+        WHERE t2.fund_alias = i.fund_alias
+        AND t2.bought_at <= i.updated_at
+    )
+WHERE i.user_id = '${userId}' ${fundFilter} ${dateFilter}     
+ORDER BY i.updated_at
+LIMIT ${limit} OFFSET ${offset}
+`;
 
-  // const countSql = `SELECT COUNT (*) AS count,
-  // SUM(income * 100.0 / (price * quantity)) AS sum_pvp,
-  // SUM(income) AS sum_incomes
-  // FROM incomes
-  // WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
-  // `;
-
-  const sql = `SELECT incomes.*
-  FROM incomes 
-  WHERE user_id = '${userId}' ${fundFilter} ${dateFilter} ${groupFilter}
-  ORDER BY updated_at 
-  LIMIT ${limit} OFFSET ${offset}
-  `;
-
-  const countSql = `SELECT COUNT (*) AS count,
-  SUM(income) AS sum_incomes
-  FROM incomes 
+  const countSql = `SELECT COUNT (*) AS count
+  FROM incomes i
   WHERE user_id = '${userId}' ${fundFilter} ${dateFilter}
   `;
 

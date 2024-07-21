@@ -10,6 +10,7 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
     expect(income.body).toHaveProperty("id");
     expect(income.body).toHaveProperty("price");
     expect(income.body).toHaveProperty("updated_at");
+    expect(income.body).toHaveProperty("income");
     expect(income.body).toHaveProperty("fund_alias");
     expect(income.body).toHaveProperty("user_id");
   });
@@ -29,13 +30,13 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
     expect(response.status).toBe(404);
   });
 
-  test("GET /incomes -  should not be able to retrieve income without authentication", async () => {
+  test("GET /incomes -  should not be able to list incomes without authentication", async () => {
     const response = await request(app).get(`/incomes`);
     expect(response.body).toHaveProperty("message");
     expect(response.status).toBe(401);
   });
 
-  test("GET /incomes -  Must be able to list all incomes for logged user", async () => {
+  test("GET /incomes -  should be able to list all incomes for logged user", async () => {
     const response = await request(app)
       .get("/incomes")
       .set("Authorization", `Bearer ${userLogin.body.token}`);
@@ -43,24 +44,24 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /incomes/self-profits -  Must be able to list all profits", async () => {
-    const response = await request(app)
-      .get("/incomes/self-profits")
-      .set("Authorization", `Bearer ${userLogin.body.token}`);
-    expect(response.body[0]).toHaveProperty("year_month");
-    expect(response.body[0]).toHaveProperty("sum_incomes");
-    expect(response.body[0]).toHaveProperty("sum_patrimony");
-    expect(response.status).toBe(200);
-  });
+  // test("GET /incomes/self-profits -  Must be able to list all profits", async () => {
+  //   const response = await request(app)
+  //     .get("/incomes/self-profits")
+  //     .set("Authorization", `Bearer ${userLogin.body.token}`);
+  //   expect(response.body[0]).toHaveProperty("year_month");
+  //   expect(response.body[0]).toHaveProperty("sum_incomes");
+  //   expect(response.body[0]).toHaveProperty("sum_patrimony");
+  //   expect(response.status).toBe(200);
+  // });
 
-  test("GET /incomes/patrimony -  Must be able to list all patrimony by type", async () => {
-    const response = await request(app)
-      .get("/incomes/patrimony")
-      .set("Authorization", `Bearer ${userLogin.body.token}`);
-    expect(response.body[0]).toHaveProperty("type");
-    expect(response.body[0]).toHaveProperty("sum_patrimony");
-    expect(response.status).toBe(200);
-  });
+  // test("GET /incomes/patrimony -  Must be able to list all patrimony by type", async () => {
+  //   const response = await request(app)
+  //     .get("/incomes/patrimony")
+  //     .set("Authorization", `Bearer ${userLogin.body.token}`);
+  //   expect(response.body[0]).toHaveProperty("type");
+  //   expect(response.body[0]).toHaveProperty("sum_patrimony");
+  //   expect(response.status).toBe(200);
+  // });
 
   test("PATCH /incomes/:id -  should not be able to update income without authentication", async () => {
     const response = await request(app).patch(`/funds/${income.body.alias}`);

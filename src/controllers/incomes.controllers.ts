@@ -16,26 +16,13 @@ export const createIncomeController = (req: Request, res: Response, next: NextFu
 };
 
 export const getSelfIncomesController = (req: Request, res: Response) => {
-  const { offset, limit, init_date, end_date, group_by } = req.query as {
+  const { offset, limit, init_date, end_date, group_by, fund_alias } = req.query as {
     offset: string;
     limit: string;
     init_date: string;
     end_date: string;
     group_by: string;
-  };
-  getSelfIncomesService(req.user!.id, offset, limit, init_date, end_date, group_by, (err, rows) => {
-    if (err) return res.status(400).json(err);
-    res.status(200).json(rows);
-  });
-};
-
-export const getSelfIncomesFundController = (req: Request, res: Response) => {
-  const { offset, limit, init_date, end_date, group_by } = req.query as {
-    offset: string;
-    limit: string;
-    init_date: string;
-    end_date: string;
-    group_by: string;
+    fund_alias: string;
   };
   getSelfIncomesService(
     req.user!.id,
@@ -48,7 +35,31 @@ export const getSelfIncomesFundController = (req: Request, res: Response) => {
       if (err) return res.status(400).json(err);
       res.status(200).json(rows);
     },
-    req.params.fundAlias
+    fund_alias
+  );
+};
+
+export const getSelfIncomesFundController = (req: Request, res: Response) => {
+  const { offset, limit, init_date, end_date, group_by, fund_alias } = req.query as {
+    offset: string;
+    limit: string;
+    init_date: string;
+    end_date: string;
+    group_by: string;
+    fund_alias: string;
+  };
+  getSelfIncomesService(
+    req.user!.id,
+    offset,
+    limit,
+    init_date,
+    end_date,
+    group_by,
+    (err, rows) => {
+      if (err) return res.status(400).json(err);
+      res.status(200).json(rows);
+    },
+    fund_alias
   );
 };
 
