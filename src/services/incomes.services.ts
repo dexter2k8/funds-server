@@ -35,10 +35,15 @@ export function getSelfIncomesService(
     init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
   const groupFilter = group_by ? `GROUP BY i.${group_by}` : "";
 
+  // SELECT: returns all incomes
+  // LEFT JOIN: returns transactions fields based on fund
+  // LAG: get the previous line price
+  // t.bought_at: returns the most recent transaction for each fund
   const sql = `SELECT 
     i.*, 
     t.quantity,
-    (i.price * t.quantity) AS patrimony
+    (i.price * t.quantity) AS patrimony,
+    (i.price - LAG(i.price) OVER (PARTITION BY i.fund_alias ORDER BY i.updated_at)) AS variation
 FROM incomes i
 LEFT JOIN transactions t
 ON i.fund_alias = t.fund_alias
