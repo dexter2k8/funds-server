@@ -55,7 +55,7 @@ AND
         AND t2.bought_at <= i.updated_at
     )
 WHERE i.user_id = '${userId}' ${fundFilter} ${dateFilter}     
-ORDER BY i.updated_at
+ORDER BY i.updated_at DESC
 LIMIT ${limit} OFFSET ${offset}
 `;
 
