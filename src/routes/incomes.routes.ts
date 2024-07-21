@@ -4,7 +4,6 @@ import {
   deleteIncomeController,
   getSelfPatrimonyByTypeController,
   getSelfProfitsController,
-  getSelfIncomesFundController,
   getSelfIncomesController,
   updateIncomeController,
 } from "../controllers/incomes.controllers";
@@ -27,10 +26,10 @@ incomesRoutes.get("", authUserMiddleware, getSelfIncomesController);
 incomesRoutes.get("/self-profits", authUserMiddleware, getSelfProfitsController);
 incomesRoutes.get("/patrimony", authUserMiddleware, getSelfPatrimonyByTypeController);
 incomesRoutes.get(
-  "/:fundAlias",
+  "/:fund_alias",
   authUserMiddleware,
   fundExistsMiddleware,
-  getSelfIncomesFundController
+  getSelfIncomesController
 );
 incomesRoutes.patch(
   "/:id",
