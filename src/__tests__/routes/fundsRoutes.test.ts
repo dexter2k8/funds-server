@@ -35,6 +35,14 @@ describe("/funds - FUNDS ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
+  test("GET /funds/self-funds -  Must be able to list all funds owned by logged user", async () => {
+    const response = await request(app)
+      .get("/funds/self-funds")
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+    expect(response.body).toHaveLength(1);
+    expect(response.status).toBe(200);
+  });
+
   test("GET /funds/:alias -  should not be able to retrieve fund without authentication", async () => {
     const fundTobeRetrievedAlias = fund.body.alias;
     const response = await request(app).get(`/funds/${fundTobeRetrievedAlias}`);

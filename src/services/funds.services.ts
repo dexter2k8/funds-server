@@ -50,8 +50,20 @@ export function getSelfFundsService(
   userId: string,
   callback: (err: Error | null, row?: IFundRequest) => void
 ) {
-  const sql =
-    "SELECT f.* FROM funds f, transactions t WHERE t.fund_alias = f.alias AND t.user_id = ? GROUP BY f.alias";
+  // get all funds owned by user, based on latest transaction of each fund
+  const sql = `
+  SELECT f.*
+FROM funds f
+JOIN (
+    SELECT t.fund_alias, MAX(t.bought_at) as latest_bought_at
+    FROM transactions t
+    WHERE t.user_id = ?
+    GROUP BY t.fund_alias
+) latest ON latest.fund_alias = f.alias
+JOIN transactions t ON t.fund_alias = latest.fund_alias AND t.bought_at = latest.latest_bought_at
+WHERE t.quantity > 0;  
+  `;
+
   const params = [userId];
   database.all(sql, params, (err: Error | null, row: IFundRequest) => {
     if (err) return callback(new AppError(err.message, 400));
