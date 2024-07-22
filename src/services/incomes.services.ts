@@ -26,15 +26,12 @@ export function getSelfIncomesService(
   limit = "10",
   init_date: string,
   end_date: string,
-  group_by: string,
   callback: (err: Error | null, rows?: { data: IIncomeResponse[]; totals: unknown }) => void,
   fund_alias?: string
 ) {
   const fundFilter = fund_alias ? `AND i.fund_alias = '${fund_alias}'` : "";
   const dateFilter =
     init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
-  const groupFilter = group_by ? `GROUP BY i.${group_by}` : "";
-
   // SELECT: returns all incomes
   // LEFT JOIN: returns transactions fields based on fund
   // LAG: get the previous line price for variation calculation
