@@ -37,7 +37,7 @@ export function getSelfIncomesService(
 
   // SELECT: returns all incomes
   // LEFT JOIN: returns transactions fields based on fund
-  // LAG: get the previous line price
+  // LAG: get the previous line price for variation calculation
   // t.bought_at: returns the most recent transaction for each fund
   const sql = `SELECT 
     i.*, 
@@ -187,8 +187,12 @@ export function getSelfPatrimonyByTypeService(
   userId: string,
   callback: (err: Error | null, rows?: unknown) => void
 ) {
-  const sql = `
-  
+  // CTE LatestIncomes: Get most recent record for each fund
+  // LEFT JOIN: merge quantity from transactions with incomes price
+  // AND t.max_bought_at   =: get nearest transaction for each fund (less or equal date)
+  // COALESCE(li.quantity, 0): returns 0 if li.quantity is null
+  // SELECT SUM() ...GROUP BY: get total patrimony grouped by fund type
+  const sql = `  
   WITH LatestIncomes AS (
     SELECT
         i.fund_alias,
@@ -236,8 +240,7 @@ FROM
 INNER JOIN
     funds f ON li.fund_alias = f.alias
 GROUP BY
-    f.type;
-  
+    f.type;  
   `;
 
   database.all(sql, function (err, rows: IIncomeProfit[]) {
