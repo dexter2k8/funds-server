@@ -76,68 +76,110 @@ LIMIT ${limit} OFFSET ${offset}
 
 export function getSelfProfitsService(
   userId: string,
-  fund_alias: string,
   init_date: string,
   end_date: string,
   callback: (err: Error | null, rows?: unknown) => void
 ) {
-  const fundFilter = fund_alias ? `AND fund_alias = '${fund_alias}'` : "";
-  const dateFilter =
-    init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
-
-  const sql = `SELECT strftime('%Y-%m', updated_at) AS year_month,
-  SUM(income) AS sum_incomes
-  FROM incomes 
-  WHERE user_id = '${userId}' ${dateFilter} ${fundFilter}
-  GROUP BY strftime('%Y-%m', updated_at)
-  `;
-
-  const profitSql = `WITH FirstValuePerMonth AS (
-  SELECT fund_alias,
-    strftime('%Y-%m', updated_at) AS year_month,
-    price,
-    quantity,
-    ROW_NUMBER() OVER (PARTITION BY fund_alias, strftime('%Y-%m', updated_at) ORDER BY updated_at) AS row_num
-  FROM incomes
-  WHERE user_id = '${userId}' ${dateFilter} ${fundFilter}
+  // CTE 'DateRange': Get all the months between 'init_date' and 'end_date'
+  //                  Use the recursive function to add a month at each iteration.
+  // CTE 'LatestIncomesPerMonth': Get the month end and group it with fund_alias
+  //                              To find the most recent updated_at
+  // CTE 'MonthlySums': Get the total income and patrimony for each month
+  const sql = `
+  WITH DateRange AS (
+    SELECT DATE('${init_date}') AS month_start
+    UNION ALL
+    SELECT DATE(month_start, '+1 month')
+    FROM DateRange
+    WHERE DATE(month_start, '+1 month') <= '${end_date}'
 ),
-FirstValuePerMonthFiltered AS (
-  SELECT
-    fund_alias,
-    year_month,
-    price,
-    quantity
-  FROM
-    FirstValuePerMonth
-  WHERE
-    row_num = 1
+LatestIncomesPerMonth AS (
+    SELECT
+        DATE(month_start, 'start of month', '+1 month', '-1 day') AS month_end,
+        i.fund_alias,
+        MAX(i.updated_at) AS max_updated_at
+    FROM
+        DateRange dr
+    JOIN
+        incomes i ON i.updated_at <= DATE(dr.month_start, 'start of month', '+1 month', '-1 day')
+    GROUP BY
+        month_end,
+        i.fund_alias
+),
+MonthlySums AS (
+    SELECT
+        strftime('%Y-%m', lim.month_end) AS year_month,
+        SUM(i.price * t.quantity) AS total_patrimony,
+        SUM(CASE WHEN strftime('%Y-%m', i.updated_at) = strftime('%Y-%m', lim.month_end) THEN i.income ELSE 0 END) AS total_income
+    FROM
+        LatestIncomesPerMonth lim
+    JOIN
+        incomes i ON lim.fund_alias = i.fund_alias AND lim.max_updated_at = i.updated_at
+        AND i.user_id = '${userId}'
+    LEFT JOIN 
+        transactions t ON i.fund_alias = t.fund_alias
+    AND t.bought_at = (
+        SELECT MAX(t2.bought_at)
+        FROM transactions t2
+        WHERE t2.fund_alias = i.fund_alias
+        AND t2.bought_at <= i.updated_at
+    )
+    GROUP BY
+        year_month
 )
 SELECT
-  year_month,
-  SUM(price * quantity) AS sum_patrimony
+    year_month,
+    total_patrimony,
+    total_income
 FROM
-  FirstValuePerMonthFiltered
-GROUP BY
-  year_month
+    MonthlySums
 ORDER BY
-  year_month
+    year_month
   `;
-
-  database.all(sql, function (err, rows: IIncomeProfit[]) {
+  database.all(sql, function (err, rows: unknown) {
     if (err) return callback(new AppError(err.message, 400));
-    database.all(profitSql, function (err, totals: IIncomeProfit[]) {
-      if (err) return callback(new AppError(err.message, 400));
-      const incomes = rows.map((income) => {
-        const total = totals.find((t) => t.year_month === income.year_month);
-        return {
-          year_month: income.year_month,
-          sum_incomes: income.sum_incomes,
-          sum_patrimony: total ? total.sum_patrimony : null,
-        };
-      });
+    callback(null, rows);
+  });
+}
 
-      callback(null, incomes);
-    });
+export function getSelfProfitsByFundService(
+  userId: string,
+  init_date: string,
+  end_date: string,
+  fund_alias: string,
+  callback: (err: Error | null, rows?: unknown) => void
+) {
+  const fundFilter = fund_alias ? `AND i.fund_alias = '${fund_alias}'` : "";
+  const dateFilter =
+    init_date && end_date ? `AND updated_at BETWEEN '${init_date}' AND '${end_date}'` : "";
+  // Get the total income and patrimony of a fund for each month
+  const sql = `SELECT
+  strftime('%Y-%m', i.updated_at) AS year_month,
+  SUM(i.price * t.quantity) AS total_patrimony,
+  SUM(i.income) AS total_income
+FROM 
+  incomes i
+LEFT JOIN 
+  transactions t
+ON 
+  i.fund_alias = t.fund_alias
+AND 
+  t.bought_at = (
+      SELECT MAX(t2.bought_at)
+      FROM transactions t2
+      WHERE t2.fund_alias = i.fund_alias
+      AND t2.bought_at <= i.updated_at
+  )        
+WHERE
+  i.user_id = '${userId}' ${fundFilter} ${dateFilter}
+GROUP BY
+  strftime('%Y-%m', i.updated_at)
+ORDER BY
+  year_month;  
+`;
+  database.all(sql, function (err, rows: unknown) {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, rows);
   });
 }
 

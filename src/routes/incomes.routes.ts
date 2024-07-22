@@ -6,6 +6,7 @@ import {
   getSelfProfitsController,
   getSelfIncomesController,
   updateIncomeController,
+  getSelfProfitsByFundController,
 } from "../controllers/incomes.controllers";
 import { dataValidateMiddleware } from "../middlewares/dataValidate.middleware";
 import { createIncomeSchema, updateIncomeSchema } from "../serializers/incomes.schemas";
@@ -24,6 +25,12 @@ incomesRoutes.post(
 );
 incomesRoutes.get("", authUserMiddleware, getSelfIncomesController);
 incomesRoutes.get("/self-profits", authUserMiddleware, getSelfProfitsController);
+incomesRoutes.get(
+  "/self-profits/:fund_alias",
+  authUserMiddleware,
+  fundExistsMiddleware,
+  getSelfProfitsByFundController
+);
 incomesRoutes.get("/patrimony", authUserMiddleware, getSelfPatrimonyByTypeController);
 incomesRoutes.get(
   "/:fund_alias",

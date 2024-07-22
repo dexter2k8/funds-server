@@ -6,6 +6,7 @@ import {
   getSelfProfitsService,
   getSelfIncomesService,
   updateIncomeService,
+  getSelfProfitsByFundService,
 } from "../services/incomes.services";
 
 export const createIncomeController = (req: Request, res: Response, next: NextFunction) => {
@@ -41,12 +42,24 @@ export const getSelfIncomesController = (req: Request, res: Response) => {
 };
 
 export const getSelfProfitsController = (req: Request, res: Response) => {
-  const { fund_alias, init_date, end_date } = req.query as {
-    fund_alias: string;
+  const { init_date, end_date } = req.query as {
     init_date: string;
     end_date: string;
   };
-  getSelfProfitsService(req.user!.id, fund_alias, init_date, end_date, (err, rows) => {
+  getSelfProfitsService(req.user!.id, init_date, end_date, (err, rows) => {
+    if (err) return res.status(400).json(err);
+    res.status(200).json(rows);
+  });
+};
+
+export const getSelfProfitsByFundController = (req: Request, res: Response) => {
+  const { init_date, end_date } = req.query as {
+    init_date: string;
+    end_date: string;
+  };
+  const user_id = req.user!.id;
+  const fund_alias = req.params.fund_alias;
+  getSelfProfitsByFundService(user_id, init_date, end_date, fund_alias, (err, rows) => {
     if (err) return res.status(400).json(err);
     res.status(200).json(rows);
   });
