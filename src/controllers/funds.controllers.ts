@@ -3,6 +3,7 @@ import {
   createFundService,
   deleteFundService,
   getFundsService,
+  getSelfFundsService,
   retrieveFundService,
   updateFundService,
 } from "../services/funds.services";
@@ -26,6 +27,13 @@ export const retrieveFundController = (req: Request, res: Response, next: NextFu
   retrieveFundService(req.params.alias, (err, row) => {
     if (err) return next(err);
     res.status(200).json(row);
+  });
+};
+
+export const getSelfFundsController = (req: Request, res: Response, next: NextFunction) => {
+  getSelfFundsService(req.user!.id, (err, rows) => {
+    if (err) return next(err);
+    res.status(200).json(rows);
   });
 };
 

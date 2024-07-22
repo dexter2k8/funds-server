@@ -36,7 +36,7 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
     expect(response.status).toBe(401);
   });
 
-  test("GET /incomes -  should be able to list all incomes for logged user", async () => {
+  test("GET /incomes -  should be able to list all incomes owned by logged user", async () => {
     const response = await request(app)
       .get("/incomes")
       .set("Authorization", `Bearer ${userLogin.body.token}`);
@@ -44,7 +44,7 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /incomes/self-profits -  Must be able to list all profits", async () => {
+  test("GET /incomes/self-profits -  Must be able to list all profits owned by logged user", async () => {
     const response = await request(app)
       .get("/incomes/self-profits?init_date=2022-07-01&end_date=2022-08-31")
       .set("Authorization", `Bearer ${userLogin.body.token}`);
@@ -54,7 +54,7 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /incomes/self-profits/:fund_alias -  Must be able to list all profits for a specific fund", async () => {
+  test("GET /incomes/self-profits/:fund_alias -  Must be able to list all profits of a specific fund owned by logged user", async () => {
     const response = await request(app)
       .get("/incomes/self-profits/HGLG11?init_date=2022-07-01&end_date=2022-08-31")
       .set("Authorization", `Bearer ${userLogin.body.token}`);
@@ -64,7 +64,7 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /incomes/patrimony -  Must be able to list all patrimony by type", async () => {
+  test("GET /incomes/patrimony -  Must be able to list all patrimony by type owned by logged user", async () => {
     const response = await request(app)
       .get("/incomes/patrimony")
       .set("Authorization", `Bearer ${userLogin.body.token}`);

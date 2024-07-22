@@ -46,6 +46,19 @@ export function retrieveFundService(
   });
 }
 
+export function getSelfFundsService(
+  userId: string,
+  callback: (err: Error | null, row?: IFundRequest) => void
+) {
+  const sql =
+    "SELECT f.* FROM funds f, transactions t WHERE t.fund_alias = f.alias AND t.user_id = ? GROUP BY f.alias";
+  const params = [userId];
+  database.all(sql, params, (err: Error | null, row: IFundRequest) => {
+    if (err) return callback(new AppError(err.message, 400));
+    callback(null, row);
+  });
+}
+
 export function updateFundService(
   alias: string,
   user: IFundPatchRequest,

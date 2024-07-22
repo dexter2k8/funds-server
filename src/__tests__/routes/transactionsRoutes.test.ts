@@ -40,11 +40,19 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     expect(response.status).toBe(401);
   });
 
-  test("GET /transactions -  should be able to list transactions for logged user", async () => {
+  test("GET /transactions -  should be able to list transactions owned by logged user", async () => {
     const response = await request(app)
       .get(`/transactions`)
       .set("Authorization", `Bearer ${userLogin.body.token}`);
     expect(response.body).toHaveLength(2);
+    expect(response.status).toBe(200);
+  });
+
+  test("GET /funds/self-funds -  Must be able to list all funds owned by logged user", async () => {
+    const response = await request(app)
+      .get("/funds/self-funds")
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+    expect(response.body).toHaveLength(1);
     expect(response.status).toBe(200);
   });
 

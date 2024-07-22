@@ -3,6 +3,7 @@ import {
   createFundController,
   deleteFundController,
   getFundsController,
+  getSelfFundsController,
   retrieveFundController,
   updateFundController,
 } from "../controllers/funds.controllers";
@@ -25,6 +26,7 @@ fundRoutes.post(
   createFundController
 );
 fundRoutes.get("", authUserMiddleware, getFundsController);
+fundRoutes.get("/self-funds", authUserMiddleware, getSelfFundsController);
 fundRoutes.get("/:alias", authUserMiddleware, fundNotFoundMiddleware, retrieveFundController);
 fundRoutes.patch(
   "/:alias",
