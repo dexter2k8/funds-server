@@ -187,17 +187,59 @@ export function getSelfPatrimonyByTypeService(
   userId: string,
   callback: (err: Error | null, rows?: unknown) => void
 ) {
-  const sql = `SELECT
-  funds.type,
-  SUM(incomes.price * incomes.quantity) AS sum_patrimony
+  const sql = `
+  
+  WITH LatestIncomes AS (
+    SELECT
+        i.fund_alias,
+        i.price,
+        i.updated_at,
+        t.quantity
+    FROM
+        incomes i
+    INNER JOIN (
+        SELECT
+            fund_alias,
+            MAX(updated_at) AS max_updated_at
+        FROM
+            incomes
+        WHERE
+            user_id = '${userId}'
+        GROUP BY
+            fund_alias
+    ) latest_incomes
+    ON i.fund_alias = latest_incomes.fund_alias
+    AND i.updated_at = latest_incomes.max_updated_at
+    LEFT JOIN (
+        SELECT
+            t.fund_alias,
+            t.quantity,
+            MAX(t.bought_at) AS max_bought_at
+        FROM
+            transactions t
+        GROUP BY
+            t.fund_alias
+    ) t
+    ON i.fund_alias = t.fund_alias
+    AND t.max_bought_at = (
+        SELECT MAX(t2.bought_at)
+        FROM transactions t2
+        WHERE t2.fund_alias = i.fund_alias
+        AND t2.bought_at <= i.updated_at
+    )
+)
+SELECT
+    f.type,
+    SUM(li.price * COALESCE(li.quantity, 0)) AS total_patrimony
 FROM
-  incomes
-  INNER JOIN funds ON incomes.fund_alias = funds.alias
-WHERE
-  user_id = '${userId}'
+    LatestIncomes li
+INNER JOIN
+    funds f ON li.fund_alias = f.alias
 GROUP BY
-  funds.type
+    f.type;
+  
   `;
+
   database.all(sql, function (err, rows: IIncomeProfit[]) {
     if (err) return callback(new AppError(err.message, 400));
     callback(null, rows);

@@ -49,8 +49,8 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
   //     .get("/incomes/self-profits")
   //     .set("Authorization", `Bearer ${userLogin.body.token}`);
   //   expect(response.body[0]).toHaveProperty("year_month");
-  //   expect(response.body[0]).toHaveProperty("sum_incomes");
-  //   expect(response.body[0]).toHaveProperty("sum_patrimony");
+  //   expect(response.body[0]).toHaveProperty("total_incomes");
+  //   expect(response.body[0]).toHaveProperty("total_patrimony");
   //   expect(response.status).toBe(200);
   // });
 
@@ -59,7 +59,7 @@ describe("/incomes - INCOMES ROUTE TEST", () => {
   //     .get("/incomes/patrimony")
   //     .set("Authorization", `Bearer ${userLogin.body.token}`);
   //   expect(response.body[0]).toHaveProperty("type");
-  //   expect(response.body[0]).toHaveProperty("sum_patrimony");
+  //   expect(response.body[0]).toHaveProperty("total_patrimony");
   //   expect(response.status).toBe(200);
   // });
 
