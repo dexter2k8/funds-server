@@ -6,13 +6,17 @@ import { mockedTransaction } from "../mocks";
 
 describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
   test("POST /transactions -  Must be able to create a transaction", async () => {
-    expect(transaction.status).toBe(201);
-    expect(transaction.body).toHaveProperty("id");
-    expect(transaction.body).toHaveProperty("price");
-    expect(transaction.body).toHaveProperty("bought_at");
-    expect(transaction.body).toHaveProperty("quantity");
-    expect(transaction.body).toHaveProperty("fund_alias");
-    expect(transaction.body).toHaveProperty("user_id");
+    const response = await request(app)
+      .post("/transactions")
+      .set("Authorization", `Bearer ${userLogin.body.token}`)
+      .send(mockedTransaction);
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("price");
+    expect(response.body).toHaveProperty("bought_at");
+    expect(response.body).toHaveProperty("quantity");
+    expect(response.body).toHaveProperty("fund_alias");
+    expect(response.body).toHaveProperty("user_id");
   });
 
   test("POST /transactions -  should not be able to create a transaction without authentication", async () => {
@@ -40,7 +44,7 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     const response = await request(app)
       .get(`/transactions`)
       .set("Authorization", `Bearer ${userLogin.body.token}`);
-    expect(response.body).toHaveLength(1);
+    expect(response.body).toHaveLength(2);
     expect(response.status).toBe(200);
   });
 

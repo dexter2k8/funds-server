@@ -29,7 +29,7 @@ export const mockedFundToDelete = {
 };
 
 export const mockedTransaction = {
-  bought_at: "2022-08-13",
+  bought_at: "2022-07-13",
   price: 14,
   quantity: 2,
   fund_alias: "HGLG11",
@@ -37,7 +37,7 @@ export const mockedTransaction = {
 
 export const mockedIncome = {
   price: 100,
-  updated_at: "2022-07-13",
+  updated_at: "2022-08-13",
   income: 1,
   fund_alias: "HGLG11",
 };
