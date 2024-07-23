@@ -40,14 +40,21 @@ export const getSelfIncomesController = (req: Request, res: Response) => {
 };
 
 export const getSelfProfitsController = (req: Request, res: Response) => {
-  const { init_date, end_date } = req.query as {
+  const { init_date, end_date, type } = req.query as {
     init_date: string;
     end_date: string;
+    type: string;
   };
-  getSelfProfitsService(req.user!.id, init_date, end_date, (err, rows) => {
-    if (err) return res.status(400).json(err);
-    res.status(200).json(rows);
-  });
+  getSelfProfitsService(
+    req.user!.id,
+    init_date,
+    end_date,
+    (err, rows) => {
+      if (err) return res.status(400).json(err);
+      res.status(200).json(rows);
+    },
+    type
+  );
 };
 
 export const getSelfProfitsByFundController = (req: Request, res: Response) => {

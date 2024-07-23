@@ -75,8 +75,10 @@ export function getSelfProfitsService(
   userId: string,
   init_date: string,
   end_date: string,
-  callback: (err: Error | null, rows?: unknown) => void
+  callback: (err: Error | null, rows?: unknown) => void,
+  type?: string
 ) {
+  const typeFilter = type ? `JOIN funds f ON i.fund_alias = f.alias WHERE f.type = '${type}'` : "";
   // CTE 'DateRange': Get all the months between 'init_date' and 'end_date'
   //                  Use the recursive function to add a month at each iteration.
   // CTE 'LatestIncomesPerMonth': Get the month end and group it with fund_alias
@@ -121,6 +123,7 @@ MonthlySums AS (
         WHERE t2.fund_alias = i.fund_alias
         AND t2.bought_at <= i.updated_at
     )
+    ${typeFilter}
     GROUP BY
         year_month
 )
