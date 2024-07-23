@@ -26,7 +26,7 @@ export function getSelfTransactionsService(
   userId: string,
   offset = "0",
   limit = "10",
-  callback: (err: Error | null, rows?: ITransactionResponse[]) => void,
+  callback: (err: Error | null, rows?: { data: ITransactionResponse[]; count: number }) => void,
   group_by?: string,
   fund_alias?: string
 ) {
@@ -38,10 +38,17 @@ export function getSelfTransactionsService(
   ORDER BY bought_at DESC
   LIMIT ${limit} OFFSET ${offset}
   `;
+  const countSql = `SELECT COUNT (*) AS count 
+  FROM transactions 
+  WHERE user_id = '${userId}' ${fundFilter} ${groupFilter}
+  `;
   database.all(sql, function (err, rows: ITransactionResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
     const transactions = rows.map(({ user_id, ...rest }) => rest);
-    callback(null, transactions);
+    database.get(countSql, function (err, count: { count: number }) {
+      if (err) return callback(new AppError(err.message, 400));
+      callback(null, { data: transactions, count: count.count });
+    });
   });
 }
 

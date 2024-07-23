@@ -44,7 +44,7 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     const response = await request(app)
       .get(`/transactions`)
       .set("Authorization", `Bearer ${userLogin.body.token}`);
-    expect(response.body).toHaveLength(2);
+    expect(response.body.data).toHaveLength(2);
     expect(response.status).toBe(200);
   });
 
