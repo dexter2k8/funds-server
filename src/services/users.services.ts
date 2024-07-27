@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { hashSync } from "bcryptjs";
 
 export function createUserService(
-  { name, email, password, admin }: IUserRequest,
+  { name, email, password, admin = false }: IUserRequest,
   callback: (err: Error | null, row?: unknown) => void
 ) {
   const id = uuid();
