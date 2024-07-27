@@ -6,6 +6,7 @@ import fundRoutes from "./routes/funds.routes";
 import incomesRoutes from "./routes/incomes.routes";
 import transactionsRoutes from "./routes/transactions.routes";
 import "dotenv/config";
+import { authUserMiddleware } from "./middlewares/authUserMiddleware";
 
 const app = express();
 app.use(express.json());
@@ -18,7 +19,11 @@ app.use("/transactions", transactionsRoutes);
 
 app.use(errorHandler);
 
-app.get("/", (req, res) => {
+app.get("/verify-token", authUserMiddleware, (_, res) => {
+  res.json({ isValid: true });
+});
+
+app.get("/", (_, res) => {
   res.json({ message: "Welcome to Funds Explorer Server!" });
 });
 
