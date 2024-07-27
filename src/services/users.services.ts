@@ -26,7 +26,7 @@ export function getUsersService(
   callback: (err: Error | null, rows?: { data: IUserResponse[]; count: number }) => void
 ) {
   const sql = `SELECT * FROM users ORDER BY name LIMIT ${limit} OFFSET ${offset}`;
-  const countSql = "SELECT COUNT (*) AS count FROM funds";
+  const countSql = "SELECT COUNT (*) AS count FROM users";
 
   database.all(sql, function (err, rows: IUserResponse[]) {
     if (err) return callback(new AppError(err.message, 400));
