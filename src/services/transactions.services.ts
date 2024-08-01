@@ -52,6 +52,57 @@ export function getSelfTransactionsService(
   });
 }
 
+export function getLatestTransactionsService(
+  userId: string,
+  offset = "0",
+  limit = "10",
+  callback: (err: Error | null, rows?: ITransactionResponse[]) => void,
+  fund_alias?: string
+) {
+  const fundFilter = fund_alias ? `AND fund_alias = '${fund_alias}'` : "";
+
+  // transactions_with_lag: get the previous line quantity for variation calculation
+  // latest_transactions: returns the most recent transaction for each fund
+  // quantity_diff: get the quantity difference between the latest transaction and the previous one
+  const sql = `
+  WITH transactions_with_lag AS (
+    SELECT
+        t1.*,
+        LAG(quantity) OVER (PARTITION BY fund_alias ORDER BY bought_at) AS prev_quantity,
+        ROW_NUMBER() OVER (PARTITION BY fund_alias ORDER BY bought_at DESC) AS rn
+    FROM
+        transactions t1
+),
+latest_transactions AS (
+    SELECT 
+        t2.*,        
+        quantity - COALESCE(prev_quantity, 0) AS quantity_diff
+    FROM
+        transactions_with_lag t2
+    WHERE
+        rn = 1
+)
+SELECT
+    id,
+    bought_at,
+    price,
+    user_id,
+    fund_alias,
+    quantity_diff AS quantity
+FROM
+    latest_transactions
+WHERE 
+    user_id = '${userId}' ${fundFilter}
+LIMIT ${limit} OFFSET ${offset}
+  `;
+
+  database.all(sql, function (err, rows: ITransactionResponse[]) {
+    if (err) return callback(new AppError(err.message, 400));
+    const transactions = rows.map(({ user_id, ...rest }) => rest);
+    callback(null, transactions);
+  });
+}
+
 export function updateTransactionService(
   id: string,
   userId: string,
