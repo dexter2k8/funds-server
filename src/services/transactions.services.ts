@@ -68,14 +68,17 @@ export function getLatestTransactionsService(
   WITH transactions_with_lag AS (
     SELECT
         t1.*,
+        f.name,
         LAG(quantity) OVER (PARTITION BY fund_alias ORDER BY bought_at) AS prev_quantity,
         ROW_NUMBER() OVER (PARTITION BY fund_alias ORDER BY bought_at DESC) AS rn
     FROM
         transactions t1
+    LEFT JOIN
+    funds f ON t1.fund_alias = f.alias
 ),
 latest_transactions AS (
     SELECT 
-        t2.*,        
+        t2.*,       
         quantity - COALESCE(prev_quantity, 0) AS quantity_diff
     FROM
         transactions_with_lag t2
@@ -88,6 +91,7 @@ SELECT
     price,
     user_id,
     fund_alias,
+    name,
     quantity_diff AS quantity
 FROM
     latest_transactions
