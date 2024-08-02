@@ -64,7 +64,7 @@ export function getLatestTransactionsService(
   // transactions_with_lag: get the previous line quantity for variation calculation
   // latest_transactions: returns the most recent transaction for each fund
   // quantity_diff: get the quantity difference between the latest transaction and the previous one
-  const sql = `
+  const sql2 = `
   WITH transactions_with_lag AS (
     SELECT
         t1.*,
@@ -95,9 +95,20 @@ SELECT
     quantity_diff AS quantity
 FROM
     latest_transactions
+LEFT 
 WHERE 
     user_id = '${userId}' ${fundFilter}
 LIMIT ${limit} OFFSET ${offset}
+  `;
+
+  const sql = `
+  
+  SELECT fund_alias, SUM(quantity) AS total_quantity, f.name
+  FROM transactions t
+  LEFT JOIN
+    funds f ON t.fund_alias = f.alias
+  GROUP BY fund_alias;
+  
   `;
 
   database.all(sql, function (err, rows: ITransactionResponse[]) {

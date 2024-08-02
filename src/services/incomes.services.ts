@@ -38,22 +38,23 @@ export function getSelfIncomesService(
   // t.bought_at: returns the most recent transaction for each fund
   const sql = `SELECT 
     i.*, 
-    t.quantity,
-    (i.price * t.quantity) AS patrimony,
+    (
+        SELECT SUM(t.quantity)
+        FROM transactions t
+        WHERE t.fund_alias = i.fund_alias
+          AND t.bought_at <= i.updated_at
+    ) AS quantity,
+    (i.price * (
+        SELECT SUM(t.quantity)
+        FROM transactions t
+        WHERE t.fund_alias = i.fund_alias
+          AND t.bought_at <= i.updated_at
+    )) AS patrimony,
     (i.price - LAG(i.price) OVER (PARTITION BY i.fund_alias ORDER BY i.updated_at)) AS variation
 FROM incomes i
-LEFT JOIN transactions t
-ON i.fund_alias = t.fund_alias
-AND 
-    t.bought_at = (
-        SELECT MAX(t2.bought_at)
-        FROM transactions t2
-        WHERE t2.fund_alias = i.fund_alias
-        AND t2.bought_at <= i.updated_at
-    )
-WHERE i.user_id = '${userId}' ${fundFilter} ${dateFilter}     
+WHERE i.user_id = '${userId}' ${fundFilter} ${dateFilter}
 ORDER BY i.updated_at DESC
-LIMIT ${limit} OFFSET ${offset}
+LIMIT ${limit} OFFSET ${offset};
 `;
 
   const countSql = `SELECT COUNT (*) AS count
@@ -85,7 +86,7 @@ export function getSelfProfitsService(
   //                              To find the most recent updated_at
   // CTE 'MonthlySums': Get the total income and patrimony for each month
   const sql = `
-  WITH DateRange AS (
+WITH DateRange AS (
     SELECT DATE('${init_date}') AS month_start
     UNION ALL
     SELECT DATE(month_start, '+1 month')
@@ -108,21 +109,18 @@ LatestIncomesPerMonth AS (
 MonthlySums AS (
     SELECT
         strftime('%Y-%m', lim.month_end) AS year_month,
-        SUM(i.price * t.quantity) AS total_patrimony,
+        SUM(i.price * (
+            SELECT SUM(t.quantity)
+            FROM transactions t
+            WHERE t.fund_alias = i.fund_alias
+              AND t.bought_at <= lim.month_end
+        )) AS total_patrimony,
         SUM(CASE WHEN strftime('%Y-%m', i.updated_at) = strftime('%Y-%m', lim.month_end) THEN i.income ELSE 0 END) AS total_income
     FROM
         LatestIncomesPerMonth lim
     JOIN
         incomes i ON lim.fund_alias = i.fund_alias AND lim.max_updated_at = i.updated_at
         AND i.user_id = '${userId}'
-    LEFT JOIN 
-        transactions t ON i.fund_alias = t.fund_alias
-    AND t.bought_at = (
-        SELECT MAX(t2.bought_at)
-        FROM transactions t2
-        WHERE t2.fund_alias = i.fund_alias
-        AND t2.bought_at <= i.updated_at
-    )
     ${typeFilter}
     GROUP BY
         year_month
@@ -135,7 +133,8 @@ FROM
     MonthlySums
 ORDER BY
     year_month
-  `;
+`;
+
   database.all(sql, function (err, rows: unknown) {
     if (err) return callback(new AppError(err.message, 400));
     callback(null, rows);
@@ -155,27 +154,21 @@ export function getSelfProfitsByFundService(
   // Get the total income and patrimony of a fund for each month
   const sql = `SELECT
   strftime('%Y-%m', i.updated_at) AS year_month,
-  SUM(i.price * t.quantity) AS total_patrimony,
+  SUM(i.price * (
+      SELECT SUM(t.quantity)
+      FROM transactions t
+      WHERE t.fund_alias = i.fund_alias
+        AND t.bought_at <= i.updated_at
+  )) AS total_patrimony,
   SUM(i.income) AS total_income
 FROM 
   incomes i
-LEFT JOIN 
-  transactions t
-ON 
-  i.fund_alias = t.fund_alias
-AND 
-  t.bought_at = (
-      SELECT MAX(t2.bought_at)
-      FROM transactions t2
-      WHERE t2.fund_alias = i.fund_alias
-      AND t2.bought_at <= i.updated_at
-  )        
 WHERE
   i.user_id = '${userId}' ${fundFilter} ${dateFilter}
 GROUP BY
   strftime('%Y-%m', i.updated_at)
 ORDER BY
-  year_month;  
+  year_month  
 `;
   database.all(sql, function (err, rows: unknown) {
     if (err) return callback(new AppError(err.message, 400));
@@ -198,7 +191,12 @@ export function getSelfPatrimonyByTypeService(
         i.fund_alias,
         i.price,
         i.updated_at,
-        t.quantity
+        (
+            SELECT SUM(t.quantity)
+            FROM transactions t
+            WHERE t.fund_alias = i.fund_alias
+              AND t.bought_at <= i.updated_at
+        ) AS quantity
     FROM
         incomes i
     INNER JOIN (
@@ -214,23 +212,6 @@ export function getSelfPatrimonyByTypeService(
     ) latest_incomes
     ON i.fund_alias = latest_incomes.fund_alias
     AND i.updated_at = latest_incomes.max_updated_at
-    LEFT JOIN (
-        SELECT
-            t.fund_alias,
-            t.quantity,
-            MAX(t.bought_at) AS max_bought_at
-        FROM
-            transactions t
-        GROUP BY
-            t.fund_alias
-    ) t
-    ON i.fund_alias = t.fund_alias
-    AND t.max_bought_at = (
-        SELECT MAX(t2.bought_at)
-        FROM transactions t2
-        WHERE t2.fund_alias = i.fund_alias
-        AND t2.bought_at <= i.updated_at
-    )
 )
 SELECT
     f.type,
@@ -240,7 +221,7 @@ FROM
 INNER JOIN
     funds f ON li.fund_alias = f.alias
 GROUP BY
-    f.type;  
+    f.type  
   `;
 
   database.all(sql, function (err, rows: IIncomeProfit[]) {
