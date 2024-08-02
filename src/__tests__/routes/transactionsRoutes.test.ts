@@ -48,20 +48,6 @@ describe("/transactions - TRANSACTIONS ROUTE TEST", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /transactions/latest -  should not be able to list latest transactions without authentication", async () => {
-    const response = await request(app).get(`/transactions/latest`);
-    expect(response.body).toHaveProperty("message");
-    expect(response.status).toBe(401);
-  });
-
-  test("GET /transactions/latest -  should be able to list latest transactions owned by logged user", async () => {
-    const response = await request(app)
-      .get(`/transactions/latest`)
-      .set("Authorization", `Bearer ${userLogin.body.token}`);
-    expect(response.body).toHaveLength(1);
-    expect(response.status).toBe(200);
-  });
-
   test("PATCH /transactions/:id -  should not be able to update transaction without authentication", async () => {
     const response = await request(app).patch(`/transactions/${transaction.body.id}`);
     expect(response.body).toHaveProperty("message");

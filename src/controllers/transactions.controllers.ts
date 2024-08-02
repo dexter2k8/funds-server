@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import {
   createTransactionService,
   deleteTransactionService,
-  getLatestTransactionsService,
   getSelfTransactionsService,
   updateTransactionService,
 } from "../services/transactions.services";
@@ -30,24 +29,6 @@ export const getSelfTransactionsController = (req: Request, res: Response) => {
       res.status(200).json(rows);
     },
     group_by,
-    fund_alias
-  );
-};
-
-export const getLatestTransactionsController = (req: Request, res: Response) => {
-  const { offset, limit, fund_alias } = req.query as {
-    offset: string;
-    limit: string;
-    fund_alias: string;
-  };
-  getLatestTransactionsService(
-    req.user!.id,
-    offset,
-    limit,
-    (err, rows) => {
-      if (err) return res.status(400).json(err);
-      res.status(200).json(rows);
-    },
     fund_alias
   );
 };

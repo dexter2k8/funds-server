@@ -8,7 +8,6 @@ import {
 import {
   createTransactionController,
   deleteTransactionController,
-  getLatestTransactionsController,
   getSelfTransactionsController,
   updateTransactionController,
 } from "../controllers/transactions.controllers";
@@ -25,7 +24,6 @@ transactionsRoutes.post(
   createTransactionController
 );
 transactionsRoutes.get("", authUserMiddleware, getSelfTransactionsController);
-transactionsRoutes.get("/latest", authUserMiddleware, getLatestTransactionsController);
 transactionsRoutes.patch(
   "/:id",
   authUserMiddleware,
