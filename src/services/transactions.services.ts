@@ -32,8 +32,9 @@ export function getSelfTransactionsService(
 ) {
   const fundFilter = fund_alias ? `AND fund_alias = '${fund_alias}'` : "";
   const groupFilter = group_by ? `GROUP BY ${group_by}` : "";
-  const sql = `SELECT * 
-  FROM transactions 
+  const sql = `SELECT *
+  FROM transactions
+  LEFT JOIN funds ON funds.alias = transactions.fund_alias
   WHERE user_id = '${userId}' ${fundFilter} ${groupFilter}
   ORDER BY bought_at DESC
   LIMIT ${limit} OFFSET ${offset}
