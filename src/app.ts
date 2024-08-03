@@ -19,10 +19,6 @@ app.use("/transactions", transactionsRoutes);
 
 app.use(errorHandler);
 
-app.get("/verify-token", authUserMiddleware, (_, res) => {
-  res.json({ isValid: true });
-});
-
 app.get("/", (_, res) => {
   res.json({ message: "Welcome to Funds Explorer Server!" });
 });
