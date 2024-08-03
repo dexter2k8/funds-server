@@ -185,8 +185,9 @@ export function getSelfPatrimonyByTypeService(
   // AND t.max_bought_at   =: get nearest transaction for each fund (less or equal date)
   // COALESCE(li.quantity, 0): returns 0 if li.quantity is null
   // SELECT SUM() ...GROUP BY: get total patrimony grouped by fund type
-  const sql = `  
-  WITH LatestIncomes AS (
+  // monthly_income: get the sum of incomes for current month grouped by type
+  const sql = `
+ WITH LatestIncomes AS (
     SELECT
         i.fund_alias,
         i.price,
@@ -196,7 +197,14 @@ export function getSelfPatrimonyByTypeService(
             FROM transactions t
             WHERE t.fund_alias = i.fund_alias
               AND t.bought_at <= i.updated_at
-        ) AS quantity
+        ) AS quantity,
+        (
+            SELECT SUM(i2.income)
+            FROM incomes i2
+            WHERE i2.fund_alias = i.fund_alias
+              AND strftime('%Y-%m', i2.updated_at) = strftime('%Y-%m', DATE('now', '-1 month'))
+              AND i2.user_id = '${userId}'
+        ) AS monthly_income
     FROM
         incomes i
     INNER JOIN (
@@ -215,14 +223,16 @@ export function getSelfPatrimonyByTypeService(
 )
 SELECT
     f.type,
-    SUM(li.price * COALESCE(li.quantity, 0)) AS total_patrimony
+    SUM(li.price * COALESCE(li.quantity, 0)) AS total_patrimony,
+    SUM(COALESCE(li.monthly_income, 0)) AS total_income
 FROM
     LatestIncomes li
 INNER JOIN
     funds f ON li.fund_alias = f.alias
 GROUP BY
-    f.type  
-  `;
+    f.type;
+ 
+   `;
 
   database.all(sql, function (err, rows: IIncomeProfit[]) {
     if (err) return callback(new AppError(err.message, 400));
