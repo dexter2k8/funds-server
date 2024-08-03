@@ -11,6 +11,7 @@ export const SQL_CREATE_TABLES = `
 	"email"	VARCHAR(50) NOT NULL UNIQUE,
 	"password"	VARCHAR(120) NOT NULL,
 	"admin"	BOOLEAN NOT NULL DEFAULT (0),
+	"avatar"	VARCHAR,
 	PRIMARY KEY("id")
 );
     CREATE TABLE IF NOT EXISTS "funds" (

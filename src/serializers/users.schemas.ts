@@ -6,6 +6,7 @@ export const createUserSchema: Schema<IUserRequest> = object().shape({
   email: string().email().required(),
   password: string().min(6).required(),
   admin: boolean(),
+  avatar: string(),
 });
 
 export const updateUserSchema: Schema<IUserPatchRequest> = object().shape({
@@ -13,10 +14,12 @@ export const updateUserSchema: Schema<IUserPatchRequest> = object().shape({
   email: string().email(),
   password: string().min(6),
   admin: boolean(),
+  avatar: string(),
 });
 
 export const updateSelfUserSchema: Schema<ISelfUserPatchRequest> = object().shape({
   name: string().min(3).max(50),
   email: string().email(),
   password: string().min(6),
+  avatar: string(),
 });

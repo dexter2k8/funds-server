@@ -5,14 +5,14 @@ import { v4 as uuid } from "uuid";
 import { hashSync } from "bcryptjs";
 
 export function createUserService(
-  { name, email, password, admin = false }: IUserRequest,
+  { name, email, password, admin = false, avatar = "" }: IUserRequest,
   callback: (err: Error | null, row?: unknown) => void
 ) {
   const id = uuid();
   const pass = hashSync(password, 10);
   const sql =
-    "INSERT INTO users (id, name, email, password, admin) VALUES (?, ?, ?, ?, ?) RETURNING *";
-  const params = [id, name, email, pass, admin];
+    "INSERT INTO users (id, name, email, password, admin, avatar) VALUES (?, ?, ?, ?, ?, ?) RETURNING *";
+  const params = [id, name, email, pass, admin, avatar];
   database.get(sql, params, (err, row: IUserResponse) => {
     if (err) return callback(new AppError(err.message, 400));
     delete row["password"];
