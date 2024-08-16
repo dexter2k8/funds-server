@@ -23,7 +23,7 @@ export function createIncomeService(
 export function getSelfIncomesService(
   userId: string,
   offset = "0",
-  limit = "10",
+  limit = "3000",
   init_date: string,
   end_date: string,
   callback: (err: Error | null, rows?: { data: IIncomeResponse[]; totals: unknown }) => void,
