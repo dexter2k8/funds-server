@@ -20,6 +20,7 @@ export interface IUserPatchRequest {
   email?: string;
   password?: string;
   admin?: boolean;
+  avatar?: string;
 }
 export interface ISelfUserPatchRequest {
   name?: string;
