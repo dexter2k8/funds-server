@@ -19,7 +19,7 @@ export function createFundService(
 
 export function getFundsService(
   offset = "0",
-  limit = "10",
+  limit = "1000",
   callback: (err: Error | null, rows?: { data: IFundRequest[]; count: number }) => void
 ) {
   const sql = `SELECT * FROM funds ORDER BY alias LIMIT ${limit} OFFSET ${offset}`;
