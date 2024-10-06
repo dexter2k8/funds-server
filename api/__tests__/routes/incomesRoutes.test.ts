@@ -1,7 +1,7 @@
 import { describe, test, expect } from "@jest/globals";
 import request from "supertest";
 import { adminLogin, income, userLogin } from "../integration/index.test";
-import app from "../../app";
+import app from "../..";
 import { mockedIncome } from "../mocks";
 
 describe("/incomes - INCOMES ROUTE TEST", () => {

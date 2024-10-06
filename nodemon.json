@@ -1,5 +1,5 @@
 {
-  "watch": ["src"],
+  "watch": ["api"],
   "ext": "ts",
-  "exec": "sucrase-node src/app.ts"
+  "exec": "sucrase-node api/index.ts"
 }

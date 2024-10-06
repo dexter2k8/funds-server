@@ -18,7 +18,7 @@ export let income: request.Response;
 import sqlite3 from "sqlite3";
 import database, { SQL_CREATE_TABLES } from "../../data-source";
 import { mockedAdmin, mockedFund, mockedIncome, mockedTransaction, mockedUser } from "../mocks";
-import app from "../../app";
+import app from "../..";
 
 const createNodeSqlite2Executor = (db: sqlite3.Database) => {
   const allPromise = promisify(db.all).bind(db);

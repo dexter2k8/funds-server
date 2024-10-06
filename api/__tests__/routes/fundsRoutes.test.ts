@@ -2,7 +2,7 @@ import { describe, test, expect } from "@jest/globals";
 import request from "supertest";
 import { mockedFund, mockedFundToDelete } from "../mocks";
 import { adminLogin, fund, userLogin } from "../integration/index.test";
-import app from "../../app";
+import app from "../..";
 
 describe("/funds - FUNDS ROUTE TEST", () => {
   test("POST /funds -  Must be able to create a fund", async () => {

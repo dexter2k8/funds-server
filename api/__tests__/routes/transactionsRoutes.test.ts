@@ -1,5 +1,5 @@
 import { describe, test, expect } from "@jest/globals";
-import app from "../../app";
+import app from "../..";
 import request from "supertest";
 import { adminLogin, transaction, userLogin } from "../integration/index.test";
 import { mockedTransaction } from "../mocks";
