@@ -15,7 +15,7 @@ app.use(express.json());
 // app.use("/users", userRoutes);
 // app.use("/funds", fundRoutes);
 app.use("/incomes", incomesRoutes);
-app.use("/transactions", transactionsRoutes);
+// app.use("/transactions", transactionsRoutes);
 
 app.use(errorHandler);
 
